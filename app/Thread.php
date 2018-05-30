@@ -8,6 +8,8 @@ class Thread extends Model
 {
     protected $fillable = ['user_id', 'channel_id', 'title', 'body'];
 
+    protected $with = ['creator', 'channel'];
+
     public static function boot()
     {
         parent::boot();
