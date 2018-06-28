@@ -2,10 +2,13 @@
 
 namespace App;
 
+use App\Traits\RecordsActivity;
 use Illuminate\Database\Eloquent\Model;
 
 class Thread extends Model
 {
+    use RecordsActivity;
+
     protected $fillable = ['user_id', 'channel_id', 'title', 'body'];
 
     protected $with = ['creator', 'channel'];
@@ -21,7 +24,7 @@ class Thread extends Model
         static::deleting(function ($thread) {
             $thread->replies()->delete();
         });
-    }
+    }    
 
     public function path()
     {
