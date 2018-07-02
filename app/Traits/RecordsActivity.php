@@ -23,14 +23,12 @@ trait RecordsActivity
     protected function recordActivity($event)
     {
         $this->activity()->create([
-            'subject_id' => $this->id,
-            'subject_type' => get_class($this),
             'user_id' => $this->user_id,
             'type' => $this->getActivityType($event),
         ]);
     }
 
-    protected function activity()
+    public function activity()
     {
         return $this->morphMany(Activity::class, 'subject');
     }
