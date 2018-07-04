@@ -8,6 +8,8 @@ trait RecordsActivity
 {
     protected static function bootRecordsActivity()
     {
+        if (auth()->guest()) return;
+
         foreach (static::getActivitiesToRecord() as $event) {
             static::$event(function ($model) use ($event) {
                 $model->recordActivity($event);
@@ -23,7 +25,7 @@ trait RecordsActivity
     protected function recordActivity($event)
     {
         $this->activity()->create([
-            'user_id' => $this->user_id,
+            'user_id' => auth()->id(),
             'type' => $this->getActivityType($event),
         ]);
     }
