@@ -18,10 +18,10 @@ class Activity extends Model
         return static::where('user_id', $user->id)
             ->with('subject')
             ->take($take)
+            ->orderBy('created_at', 'DESC')
             ->get()
             ->groupBy(function ($activity) {
                 return $activity->created_at->format('Y-m-d');
-            }
-        );
+            });
     }
 }
