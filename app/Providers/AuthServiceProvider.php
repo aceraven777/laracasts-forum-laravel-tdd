@@ -27,9 +27,9 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
 
         Gate::before(function ($user) {
-            if ($user->name === 'Aris Lacdao') {
-                return true;
-            }
+            // if ($user->name === 'Aris Lacdao') {
+            //     return true;
+            // }
         });
     }
 }
