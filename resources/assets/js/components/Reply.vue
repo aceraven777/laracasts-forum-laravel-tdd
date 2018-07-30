@@ -1,6 +1,10 @@
 <script>
+    import Favorite from './Favorite.vue';
+
     export default {
         props: ['attributes'],
+
+        components: { Favorite },
 
         data() {
             return {
@@ -26,6 +30,12 @@
                 $(this.$el).fadeOut(300, () => {
                     flash('Your reply has been deleted.');
                 });
+            },
+
+            favorite() {
+                axios.post('/replies/' + this.attributes.id + '/favorites');
+
+                flash('The reply has been favorited.');
             },
         },
     }

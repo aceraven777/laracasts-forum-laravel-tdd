@@ -34,11 +34,30 @@ trait Favoritable
         return $favorite->first();
     }
 
+    /**
+     * Unfavorite the reply
+     * 
+     * @return Model
+     */
+    public function unfavorite()
+    {
+        $favorites = $this->favorites();
+        $attributes = ['user_id' => auth()->id()];
+        $favorite = $favorites->where($attributes);
+
+        return $favorites->delete();
+    }
+
     public function isFavorited()
     {
         return !! $this->favorites
             ->where('user_id', auth()->id())
             ->count();
+    }
+
+    public function getIsFavoritedAttribute()
+    {
+        return $this->isFavorited();
     }
 
     public function getFavoritesCountAttribute()
