@@ -19,14 +19,14 @@ class ReadThreadsTest extends TestCase
     public function a_user_can_view_all_threads()
     {
         $response = $this->get('/threads')
-            ->assertSee($this->thread->title);
+            ->assertSee(e($this->thread->title));
     }
 
     /** @test */
     public function a_user_can_read_a_single_thread()
     {
         $response = $this->get($this->thread->path())
-            ->assertSee($this->thread->title);
+            ->assertSee(e($this->thread->title));
     }
 
     /** @test */
@@ -35,7 +35,7 @@ class ReadThreadsTest extends TestCase
         $reply = create('App\Reply', ['thread_id' => $this->thread->id]);
 
         $response = $this->get($this->thread->path())
-            ->assertSee($reply->body);
+            ->assertSee(e($reply->body));
     }
 
     /** @test */
@@ -46,8 +46,8 @@ class ReadThreadsTest extends TestCase
         $threadNotInChannel = create('App\Thread');
 
         $this->get("/threads/{$channel->slug}")
-            ->assertSee($threadInChannel->title)
-            ->assertDontSee($threadNotInChannel->title);
+            ->assertSee(e($threadInChannel->title))
+            ->assertDontSee(e($threadNotInChannel->title));
     }
 
     /** @test */
@@ -60,8 +60,8 @@ class ReadThreadsTest extends TestCase
         $threadNotByJohn = create('App\Thread');
 
         $this->get('threads?by=' . $user->name)
-            ->assertSee($threadByJohn->title)
-            ->assertDontSee($threadNotByJohn->title);
+            ->assertSee(e($threadByJohn->title))
+            ->assertDontSee(e($threadNotByJohn->title));
     }
 
     /** @test */

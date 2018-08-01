@@ -6,6 +6,13 @@ use App\Favorite;
 
 trait Favoritable
 {
+    protected static function bootFavoritable()
+    {
+        static::deleting(function ($model) {
+            $model->favorites->each->delete();
+        });
+    }  
+    
     /**
      * A reply can be favorited
      * 
@@ -43,9 +50,9 @@ trait Favoritable
     {
         $favorites = $this->favorites();
         $attributes = ['user_id' => auth()->id()];
-        $favorite = $favorites->where($attributes);
+        $favorites->where($attributes);
 
-        return $favorites->delete();
+        return $favorites->get()->each->delete();
     }
 
     public function isFavorited()

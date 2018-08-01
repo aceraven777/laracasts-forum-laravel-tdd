@@ -25,7 +25,7 @@ class ParticipateInThreadsTest extends TestCase
         $this->post($thread->path() . '/replies', $reply->toArray());
 
         $this->get($thread->path())
-            ->assertSee($reply->body);
+            ->assertSee(e($reply->body));
     }
 
     /** @test */
