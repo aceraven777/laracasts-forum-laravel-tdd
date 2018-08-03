@@ -58,7 +58,6 @@
 				return this.authorize((user) => {
 					return this.data.user_id == user.id;
 				});
-				return window.App.user && this.data.user_id == window.App.user.id;
 			},
 		},
 
