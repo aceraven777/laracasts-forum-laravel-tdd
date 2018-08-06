@@ -13,7 +13,20 @@ class RepliesController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware('auth', ['except' => 'index']);
+    }
+
+    /**
+     * Get replies of a thread.
+     *
+     * @param  string                   $channel
+     * @param  Thread                   $thread
+     * @param  \Illuminate\Http\Request $request
+     * @return array
+     */
+    public function index($channel, Thread $thread, Request $request)
+    {
+        return $thread->replies()->paginate(20);
     }
 
     /**
