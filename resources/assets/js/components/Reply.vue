@@ -70,23 +70,23 @@
             update() {
                 axios.patch('/replies/' + this.data.id, {
                     body: this.body,
-                });
+                }).then(() => {
+					this.editing = false;
 
-                this.editing = false;
-
-                flash('Updated!');
+                	flash('Updated!');
+				});
             },
 
             destroy() {
-                axios.delete('/replies/' + this.data.id);
-
-				this.$emit('deleted', this.data.id);
+                axios.delete('/replies/' + this.data.id).then(() => {
+					this.$emit('deleted', this.data.id);
+				});
             },
 
             favorite() {
-                axios.post('/replies/' + this.data.id + '/favorites');
-
-                flash('The reply has been favorited.');
+                axios.post('/replies/' + this.data.id + '/favorites').then(() => {
+					flash('The reply has been favorited.');
+				});
             },
         },
     }

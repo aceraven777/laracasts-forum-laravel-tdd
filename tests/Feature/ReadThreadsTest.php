@@ -80,15 +80,6 @@ class ReadThreadsTest extends TestCase
         $response = $this->getJson('threads?unanswered=1')->json();
 
         $this->assertCount(1, $response);
-
-        return;
-
-        $threadWithNoReplies = $this->thread;
-
-        $response = $this->json('GET', 'threads?unanswered=1');
-
-        $response->assertJsonFragment(['id' => $threadWithNoReplies->id]);
-        $response->assertJsonMissing(['id' => $thread->id]);
     }
     
     /** @test */
