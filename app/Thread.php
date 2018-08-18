@@ -12,6 +12,8 @@ class Thread extends Model
     protected $fillable = ['user_id', 'channel_id', 'title', 'body'];
 
     protected $with = ['creator', 'channel'];
+    
+    protected $appends = ['isSubscribedTo'];
 
     protected static function boot()
     {
@@ -21,6 +23,13 @@ class Thread extends Model
             $thread->replies->each->delete();
         });
     }    
+
+    public function getIsSubscribedToAttribute()
+    {
+        return $this->subscriptions()
+            ->where('user_id', auth()->id())
+            ->exists();
+    }
 
     public function path()
     {

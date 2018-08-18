@@ -23,8 +23,18 @@ class ThreadSubscriptionsController extends Controller
     public function store($channel, Thread $thread, Request $request)
     {
         $thread->subscribe();
+    }
 
-        return redirect($thread->path())
-            ->with('flash', 'Your thread has been published!');
+    /**
+     * Unsubscribe user to a thread
+     *
+     * @param  string                   $channel
+     * @param  Thread                   $thread
+     * @param  \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($channel, Thread $thread, Request $request)
+    {
+        $thread->unsubscribe();
     }
 }
