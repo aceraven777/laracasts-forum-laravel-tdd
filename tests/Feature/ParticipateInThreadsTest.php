@@ -90,7 +90,7 @@ class ParticipateInThreadsTest extends TestCase
     {
         $user = create('App\User');
         $this->signIn($user);
-        $reply = make('App\Reply', ['user_id' => $user->id]);
+        $reply = create('App\Reply', ['user_id' => $user->id]);
 
         $updatedReply = 'This is a new reply';
         $this->patch('/replies/' . $reply->id, [
