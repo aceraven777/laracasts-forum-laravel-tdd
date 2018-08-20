@@ -7,7 +7,7 @@ use Tests\TestCase;
 class CreateThreadsTest extends TestCase
 {
     /** @test */
-    function guest_may_not_create_threads()
+    public function guest_may_not_create_threads()
     {
         $this->withExceptionHandling();
 
@@ -21,7 +21,7 @@ class CreateThreadsTest extends TestCase
     }
 
     /** @test */
-    function an_authenticated_user_can_create_new_forum_threads()
+    public function an_authenticated_user_can_create_new_forum_threads()
     {
         $this->signIn();
 
@@ -34,21 +34,21 @@ class CreateThreadsTest extends TestCase
     }
 
     /** @test */
-    function a_thread_requires_a_title()
+    public function a_thread_requires_a_title()
     {
         $this->publishThread(['title' => null])
             ->assertSessionHasErrors('title');
     }
 
     /** @test */
-    function a_thread_requires_a_body()
+    public function a_thread_requires_a_body()
     {
         $this->publishThread(['body' => null])
             ->assertSessionHasErrors('body');
     }
 
     /** @test */
-    function a_thread_requires_a_valid_channel()
+    public function a_thread_requires_a_valid_channel()
     {
         factory('App\Channel', 2)->create();
 
@@ -60,7 +60,7 @@ class CreateThreadsTest extends TestCase
     }
 
     /** @test */
-    function unauthorized_users_may_not_delete_threads()
+    public function unauthorized_users_may_not_delete_threads()
     {
         $this->withExceptionHandling();
 
@@ -76,7 +76,7 @@ class CreateThreadsTest extends TestCase
     }
 
     /** @test */
-    function authorized_users_can_delete_threads()
+    public function authorized_users_can_delete_threads()
     {
         $user = create('App\User');
         $this->signIn($user);

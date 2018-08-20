@@ -83,7 +83,7 @@ class ReadThreadsTest extends TestCase
     }
     
     /** @test */
-    function a_user_can_request_all_replies_for_a_given_thread()
+    public function a_user_can_request_all_replies_for_a_given_thread()
     {
         $thread = create('App\Thread');
         $replies = create('App\Reply', ['thread_id' => $thread->id], 40);

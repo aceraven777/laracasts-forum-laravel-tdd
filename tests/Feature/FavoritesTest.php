@@ -7,7 +7,7 @@ use Tests\TestCase;
 class FavoritesTest extends TestCase
 {
     /** @test */
-    function guests_can_not_favorite_anything()
+    public function guests_can_not_favorite_anything()
     {
         $this->withExceptionHandling()
             ->post('/replies/1/favorites')
@@ -15,7 +15,7 @@ class FavoritesTest extends TestCase
     }
 
     /** @test */
-    function an_authenticated_user_can_favorite_any_reply()
+    public function an_authenticated_user_can_favorite_any_reply()
     {
         $this->signIn();
 
@@ -27,7 +27,7 @@ class FavoritesTest extends TestCase
     }
 
     /** @test */
-    function an_authenticated_user_can_unfavorite_a_reply()
+    public function an_authenticated_user_can_unfavorite_a_reply()
     {
         $this->signIn();
 
@@ -41,7 +41,7 @@ class FavoritesTest extends TestCase
     }
 
     /** @test */
-    function an_authenticated_user_may_only_favorite_a_reply_once()
+    public function an_authenticated_user_may_only_favorite_a_reply_once()
     {
         $this->signIn();
 

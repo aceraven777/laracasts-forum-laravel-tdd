@@ -7,7 +7,7 @@ use Tests\TestCase;
 class ParticipateInThreadsTest extends TestCase
 {
     /** @test */
-    function unauthenticated_users_may_not_add_replies()
+    public function unauthenticated_users_may_not_add_replies()
     {
         $this->withExceptionHandling()
             ->post('threads/channel/1/replies', [])
@@ -15,7 +15,7 @@ class ParticipateInThreadsTest extends TestCase
     }
 
     /** @test */
-    function an_authenticated_user_may_participate_in_forum_threads()
+    public function an_authenticated_user_may_participate_in_forum_threads()
     {
         $this->signIn();
 
@@ -29,14 +29,14 @@ class ParticipateInThreadsTest extends TestCase
     }
 
     /** @test */
-    function a_reply_requires_a_body()
+    public function a_reply_requires_a_body()
     {
         $this->publishReply(['body' => null])
             ->assertSessionHasErrors('body');
     }
 
     /** @test */
-    function unauthorized_users_cannot_delete_replies()
+    public function unauthorized_users_cannot_delete_replies()
     {
         $reply = create('App\Reply');
 
@@ -52,7 +52,7 @@ class ParticipateInThreadsTest extends TestCase
     }
 
     /** @test */
-    function authorized_users_can_delete_replies()
+    public function authorized_users_can_delete_replies()
     {
         $user = create('App\User');
         $this->signIn($user);
@@ -66,12 +66,13 @@ class ParticipateInThreadsTest extends TestCase
         $this->assertEquals(0, $reply->thread->fresh()->replies_count);
     }
 
-    function unauthorized_users_cannot_update_replies()
+    /** @test */
+    public function unauthorized_users_cannot_update_replies()
     {
         $this->withExceptionHandling();
         
-        $reply = make('App\Reply');
-        
+        $reply = create('App\Reply');
+
         $this->patch('/replies/' . $reply->id, [
             'body' => 'This is a new reply',
         ])->assertRedirect('login');
@@ -84,7 +85,8 @@ class ParticipateInThreadsTest extends TestCase
         ])->assertStatus(403);
     }
 
-    function authorized_users_can_update_replies()
+    /** @test */
+    public function authorized_users_can_update_replies()
     {
         $user = create('App\User');
         $this->signIn($user);
@@ -101,7 +103,7 @@ class ParticipateInThreadsTest extends TestCase
         ]);
     }
 
-    function publishReply($overrides)
+    protected function publishReply($overrides)
     {
         $this->withExceptionHandling()->signIn();
 
