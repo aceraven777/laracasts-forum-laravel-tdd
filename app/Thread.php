@@ -103,4 +103,15 @@ class Thread extends Model
             ->where('user_id', $userId ?: auth()->id())
             ->delete();
     }
+
+    public function hasUpdatesFor($user)
+    {
+        if (! $user) {
+            return false;
+        }
+
+        $key = $user->visitedThreadCacheKey($this);
+
+        return $this->updated_at > cache($key);
+    }
 }

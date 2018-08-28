@@ -129,4 +129,24 @@ class ThreadTest extends TestCase
 
         $this->assertInstanceOf('App\User', $this->thread->subscriptions()->first()->user);
     }
+
+    /** @test */
+    public function a_thread_can_check_if_the_authenticated_user_has_read_all_replies()
+    {
+        $this->signIn();
+
+        $user = auth()->user();
+
+        $this->assertTrue($this->thread->hasUpdatesFor($user));
+
+        $user->read($this->thread);
+
+        $this->assertFalse($this->thread->fresh()->hasUpdatesFor($user));
+
+        // Test a user has left a reply
+        $this->thread->updated_at = $this->thread->updated_at->addDays(1);
+        $this->thread->save();
+
+        $this->assertTrue($this->thread->fresh()->hasUpdatesFor($user));
+    }
 }
