@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Spam;
+use App\Inspections\Spam;
 use App\Reply;
 use App\Thread;
 use Illuminate\Http\Request;
