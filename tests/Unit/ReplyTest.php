@@ -21,4 +21,17 @@ class ReplyTest extends TestCase
 
         $this->assertInstanceOf('App\Thread', $reply->thread);
     }
+
+    /** @test */
+    public function it_knows_if_it_was_just_published()
+    {
+        $reply = create('App\Reply');
+
+        $this->assertTrue($reply->wasJustPublished());
+
+        $reply->created_at = $reply->created_at->subMonth();
+        $reply->save();
+
+        $this->assertFalse($reply->wasJustPublished());
+    }
 }

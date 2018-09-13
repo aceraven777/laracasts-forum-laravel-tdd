@@ -107,7 +107,28 @@ class ParticipateInThreadsTest extends TestCase
     public function replies_that_contain_spam_may_not_be_created()
     {
         $this->publishReply(['body' => 'Yahoo Customer Support'])
-            ->assertSessionHasErrors('body');
+            ->assertStatus(422);
+    }
+
+    /** @test */
+    public function users_may_only_reply_a_maximum_of_once_per_minute()
+    {
+        $user = create('App\User');
+        $this->signIn($user);
+
+        $thread = create('App\Thread');
+
+        $reply = make('App\Reply', [
+            'body' => 'My simple reply.'
+        ]);
+
+        $this->post($thread->path() . '/replies', $reply->toArray())
+            ->assertStatus(200);
+        
+        // $user->fresh();
+
+        $this->post($thread->path() . '/replies', $reply->toArray())
+            ->assertStatus(422);
     }
 
     protected function publishReply($overrides)
