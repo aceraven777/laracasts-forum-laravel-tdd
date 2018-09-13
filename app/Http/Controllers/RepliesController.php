@@ -40,7 +40,7 @@ class RepliesController extends Controller
      */
     public function store($channel, Thread $thread, Request $request)
     {
-        if (Gate::denies('create', new Reply)) {
+        if (Gate::denies('create', Reply::class)) {
             return response('You are posting too frequently. Please take a break. :)', 422);
         }
 
