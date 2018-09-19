@@ -18,14 +18,13 @@ class RepliesController extends Controller
     }
 
     /**
-     * Get replies of a thread.
+     * Fetch all relavant replies.
      *
-     * @param  string                   $channel
-     * @param  Thread                   $thread
-     * @param  \Illuminate\Http\Request $request
+     * @param  string $channelId
+     * @param  Thread $thread
      * @return array
      */
-    public function index($channel, Thread $thread, Request $request)
+    public function index($channelId, Thread $thread)
     {
         return $thread->replies()->paginate(20);
     }
@@ -57,15 +56,11 @@ class RepliesController extends Controller
     {
         $this->authorize('update', $reply);
 
-        try {
-            $this->validate(request(), [
-                'body' => 'required|spamfree',
-            ]);
-            
-            $reply->update(request(['body']));
-        } catch (\Exception $e) {
-            return response('Sorry, your reply could not be saved at this time.', 422);
-        }
+        $this->validate(request(), [
+            'body' => 'required|spamfree',
+        ]);
+        
+        $reply->update(request(['body']));
     }
 
     /**
