@@ -50,10 +50,24 @@ class Reply extends Model
         return $this->created_at->addMinute() > Carbon::now();
     }
 
-    public function mentionedUsers()
+    public function mentionedUsers($body = false)
     {
-        preg_match_all('/\@([^\s\.]+)/', $this->body, $matches);
+        preg_match_all('/\@([\w\-]+)/', $body ?: $this->body, $matches);
 
         return $matches[1];
+    }
+
+    public function setBodyAttribute($body)
+    {
+        $mentionedUsers = $this->mentionedUsers($body);
+
+        $patterns = [];
+        $replacements = [];
+        foreach ($mentionedUsers as $user) {
+            $patterns[] = '/@' . $user . '/';
+            $replacements[] = '<a href="' . route('profile', [$user]) . '">@'.$user.'</a>';
+        }
+
+        $this->attributes['body'] = preg_replace($patterns, $replacements, $body);
     }
 }
