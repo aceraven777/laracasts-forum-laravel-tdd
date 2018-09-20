@@ -16,16 +16,16 @@
 
 		<div class="panel-body">
 			<div v-if="editing">
-				<form @submit="update">
+				<form @submit.prevent="update">
 					<div class="form-group">
-						<textarea class='form-control' v-model="body" required></textarea>
+						<textarea class='form-control' v-model="formattedBody" required></textarea>
 					</div>
 
 					<button class="btn btn-xs btn-primary" type="submit">Update</button>
 					<button class="btn btns-xs btn-link" @click="editing = false" type="button">Cancel</button>
 				</form>
 			</div>
-			<div v-else v-text="body"></div>
+			<div v-else v-html="body"></div>
 		</div>
 		
 		<div class="panel-footer level" v-if="canUpdate">
@@ -65,6 +65,16 @@
 				return this.authorize((user) => {
 					return this.data.user_id == user.id;
 				});
+			},
+
+			formattedBody: {
+				get: function () {
+					return this.$options.filters.striphtml(this.body);
+				},
+
+				set: function (newValue) {
+					this.body = newValue;
+				}
 			},
 		},
 

@@ -21,6 +21,13 @@ Vue.component('user-notifications', require('./components/UserNotifications.vue'
 
 Vue.component('thread-view', require('./pages/Thread.vue'));
 
+Vue.filter('striphtml', function (value) {
+    var div = document.createElement("div");
+    div.innerHTML = value;
+    var text = div.textContent || div.innerText || "";
+    return text;
+});
+
 const app = new Vue({
     el: '#app'
 });
