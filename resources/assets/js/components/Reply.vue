@@ -78,6 +78,25 @@
 			},
 		},
 
+        // mounted() {
+		// 	$('#reply-' + this.data.id + ' form textarea').atwho({
+        //         at: "@",
+        //         delay: 750,
+        //         // data: ['yeye', 'bonel'],
+        //         callbacks: {
+        //             remoteFilter: function(query, callback) {
+        //                 if (! query) {
+        //                     return;
+        //                 }
+
+        //                 $.getJSON("/api/users", {name: query}, function(usernames) {
+        //                     callback(usernames);
+        //                 });
+        //             }
+        //         }
+        //     });
+        // },
+
         methods: {
             update() {
                 axios.patch('/replies/' + this.data.id, {
@@ -104,6 +123,32 @@
 					flash('The reply has been favorited.');
 				});
             },
+        },
+
+		updated() {
+			if (this.editing) {
+				var component = this;
+
+				$('#reply-' + this.data.id + ' form textarea').atwho({
+					at: "@",
+					delay: 750,
+					// data: ['yeye', 'bonel'],
+					callbacks: {
+						remoteFilter: function(query, callback) {
+							if (! query) {
+								return;
+							}
+
+							$.getJSON("/api/users", {name: query}, function(usernames) {
+								callback(usernames);
+							});
+						}
+					}
+				})
+				.on('inserted.atwho', function (event, flag, query) {
+					component.formattedBody = $(this).val();
+				});
+			}
         },
     }
 </script>
