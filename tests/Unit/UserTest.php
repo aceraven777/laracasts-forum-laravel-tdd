@@ -22,11 +22,11 @@ class UserTest extends TestCase
     {
         $user = create('App\User');
 
-        $this->assertEquals(asset('storage/avatars/default.jpg'), $user->avatar());
+        $this->assertEquals(asset('images/avatars/default.jpg'), $user->avatar_path);
 
         $user->avatar_path = 'avatars/me.jpg';
         $user->save();
 
-        $this->assertEquals(asset('storage/avatars/me.jpg'), $user->avatar());
+        $this->assertEquals(asset('storage/avatars/me.jpg'), $user->avatar_path);
     }
 }

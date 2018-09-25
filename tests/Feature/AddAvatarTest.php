@@ -39,7 +39,7 @@ class AddAvatarTest extends TestCase
             'avatar' => $file
         ]);
 
-        $this->assertEquals('avatars/' . $file->hashName(), auth()->user()->fresh()->avatar_path);
+        $this->assertEquals(asset('storage/avatars/' . $file->hashName()), auth()->user()->fresh()->avatar_path);
 
         Storage::disk('public')->assertExists('avatars/' . $file->hashName());
     }
