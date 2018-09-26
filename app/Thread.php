@@ -2,14 +2,15 @@
 
 namespace App;
 
+use App\Traits\RecordsVisits;
 use App\Traits\RecordsActivity;
 use App\Events\ThreadHasNewReply;
-use Illuminate\Database\Eloquent\Model;
 use App\Events\ThreadReceivedNewReply;
+use Illuminate\Database\Eloquent\Model;
 
 class Thread extends Model
 {
-    use RecordsActivity;
+    use RecordsActivity, RecordsVisits;
 
     protected $fillable = ['user_id', 'channel_id', 'title', 'body'];
 
@@ -110,5 +111,10 @@ class Thread extends Model
         $key = $user->visitedThreadCacheKey($this);
 
         return $this->updated_at > cache($key);
+    }
+
+    protected function prefixCacheKey()
+    {
+        return 'threads';
     }
 }
