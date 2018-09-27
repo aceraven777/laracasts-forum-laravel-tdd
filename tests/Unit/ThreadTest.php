@@ -154,17 +154,19 @@ class ThreadTest extends TestCase
     public function a_thread_records_each_visit()
     {        
         $thread = make('App\Thread', ['id' => 1]);
+
+        $visits = $thread->visits();
         
-        $thread->resetVisits();
+        $visits->reset();
 
-        $this->assertSame(0, $thread->visits());
+        $this->assertSame(0, $visits->count());
 
-        $thread->recordVisit();
+        $visits->record();
 
-        $this->assertEquals(1, $thread->visits());
+        $this->assertEquals(1, $visits->count());
 
-        $thread->recordVisit();
+        $visits->record();
 
-        $this->assertEquals(2, $thread->visits());
+        $this->assertEquals(2, $visits->count());
     }
 }

@@ -2,7 +2,6 @@
 
 namespace App;
 
-use App\Traits\RecordsVisits;
 use App\Traits\RecordsActivity;
 use App\Events\ThreadHasNewReply;
 use App\Events\ThreadReceivedNewReply;
@@ -10,13 +9,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class Thread extends Model
 {
-    use RecordsActivity, RecordsVisits;
+    use RecordsActivity;
 
     protected $fillable = ['user_id', 'channel_id', 'title', 'body'];
 
     protected $with = ['creator', 'channel'];
     
     protected $appends = ['isSubscribedTo'];
+
+    protected $visits = null;
 
     protected static function boot()
     {
@@ -113,8 +114,12 @@ class Thread extends Model
         return $this->updated_at > cache($key);
     }
 
-    protected function prefixCacheKey()
+    public function visits()
     {
-        return 'threads';
+        if (! $this->visits) {
+            $this->visits = new Visits($this, 'threads');
+        }
+
+        return $this->visits;
     }
 }
