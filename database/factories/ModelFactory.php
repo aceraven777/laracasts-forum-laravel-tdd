@@ -19,6 +19,7 @@ $factory->define(App\User::class, function (Faker\Generator $faker) {
         'name' => $faker->name,
         'email' => $faker->unique()->safeEmail,
         'password' => $password ?: $password = bcrypt('secret'),
+        'confirmed' => false,
         'remember_token' => str_random(10),
     ];
 });
@@ -26,7 +27,7 @@ $factory->define(App\User::class, function (Faker\Generator $faker) {
 $factory->define(App\Thread::class, function (Faker\Generator $faker) {
     return [
         'user_id' => function() {
-            return factory('App\User')->create()->id;
+            return factory('App\User')->create(['confirmed' => true])->id;
         },
         'channel_id' => function() {
             return factory('App\Channel')->create()->id;
