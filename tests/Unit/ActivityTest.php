@@ -55,7 +55,7 @@ class ActivityTest extends TestCase
 
         // Create 2 threads
         create('App\Thread', ['user_id' => $user_id], 2);
-    
+
         // Update 1 thread to week ago
         $activity_week_ago = $user->activities()->first();
         $activity_week_ago->created_at = Carbon::now()->subWeek();

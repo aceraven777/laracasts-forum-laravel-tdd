@@ -16,7 +16,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'avatar_path',
+        'name', 'email', 'password', 'avatar_path', 'confirmation_token',
     ];
 
     /**
@@ -28,37 +28,81 @@ class User extends Authenticatable
         'password', 'remember_token', 'email',
     ];
 
+    protected $casts = [
+        'confirmed' => 'boolean',
+    ];
+
     public function getRouteKeyName()
     {
         return 'name';
     }
 
+    /**
+     * Threads posted by user
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function threads()
     {
         return $this->hasMany(Thread::class)->latest();
     }
 
+    /**
+     * User activities
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function activities()
     {
         return $this->hasMany(Activity::class)->latest();
     }
 
+    /**
+     * User last reply
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function lastReply()
     {
         return $this->hasOne(Reply::class)->latest();
     }
 
+    /**
+     * Get cache key for the thread
+     *
+     * @param Thread $thread
+     */
     public function visitedThreadCacheKey($thread)
     {
         return sprintf("users.%s.visits.%s", $this->id, $thread->id);
     }
 
+    /**
+     * Mark thread as read
+     *
+     * @param Thread $thread
+     */
     public function read($thread)
     {
         $key = $this->visitedThreadCacheKey($thread);
         cache()->forever($key, Carbon::now());
     }
 
+    /**
+     * Confirm the user
+     */
+    public function confirm()
+    {
+        $this->confirmed = true;
+        $this->save();
+    }
+
+    /**
+     * Accessor for avatar_path
+     *
+     * @param [type] $avatar
+     * @return void
+     */
     public function getAvatarPathAttribute($avatar)
     {
         return $avatar ? asset('storage/'.$avatar) : asset('images/avatars/default.jpg');
