@@ -27,6 +27,11 @@ class CreateThreadsTest extends TestCase
 
         $this->signIn($user);
 
+        // Can user go to the create test form
+        $this->get(route('threads.create'))
+            ->assertRedirect(route('threads'))
+            ->assertSessionHas('flash', 'You must first confirm your email address.');
+
         $thread = make('App\Thread');
 
         $this->post(route('threads.store'), $thread->toArray())

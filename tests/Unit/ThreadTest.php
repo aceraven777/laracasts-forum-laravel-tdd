@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use Tests\TestCase;
 use App\Notifications\ThreadWasUpdated;
 use Illuminate\Support\Facades\Notification;
+use App\Thread;
 
 class ThreadTest extends TestCase
 {
@@ -18,10 +19,10 @@ class ThreadTest extends TestCase
     }
 
     /** @test */
-    public function a_thread_can_make_a_string_path()
+    public function a_thread_has_a_path()
     {
         $this->assertEquals(
-            "/threads/{$this->thread->channel->slug}/{$this->thread->id}",
+            "/threads/{$this->thread->channel->slug}/{$this->thread->slug}",
             $this->thread->path()
         );
     }
@@ -152,7 +153,7 @@ class ThreadTest extends TestCase
 
     /** @test */
     public function a_thread_records_each_visit()
-    {        
+    {
         $thread = make('App\Thread', ['id' => 1]);
 
         $visits = $thread->visits();
@@ -168,5 +169,15 @@ class ThreadTest extends TestCase
         $visits->record();
 
         $this->assertEquals(2, $visits->count());
+    }
+
+    /** @test */
+    public function a_thread_must_generate_unique_slug()
+    {
+        $unique_slug = Thread::generateUniqueSlug($this->thread->title);
+
+        $this->assertDatabaseMissing('threads', [
+            'slug' => $unique_slug
+        ]);
     }
 }

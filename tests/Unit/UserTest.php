@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\User;
 use Tests\TestCase;
 
 class UserTest extends TestCase
@@ -28,5 +29,21 @@ class UserTest extends TestCase
         $user->save();
 
         $this->assertEquals(asset('storage/avatars/me.jpg'), $user->avatar_path);
+    }
+
+    /** @test */
+    public function a_user_must_generate_unique_confirmation_token()
+    {
+        $email = 'johndoe@gmail.com';
+
+        $user = create('App\User',
+            [
+                'email' => $email,
+                'confirmation_token' => User::generateConfirmationToken($email)
+            ]);
+
+        $unique_confirmation_token = User::generateConfirmationToken($email);
+
+        $this->assertNotEquals($user->confirmation_token, $unique_confirmation_token);
     }
 }

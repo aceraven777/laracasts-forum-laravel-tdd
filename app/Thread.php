@@ -23,10 +23,36 @@ class Thread extends Model
     {
         parent::boot();
 
+        static::creating(function ($thread) {
+            $thread->slug = static::generateUniqueSlug($thread->title);
+        });
+
         static::deleting(function ($thread) {
             $thread->replies->each->delete();
         });
-    }    
+    }
+
+    public static function generateUniqueSlug($title)
+    {
+        $slug = str_slug($title);
+
+        $exists = self::where('slug', $slug)->exists();
+
+        $i = 2;
+        while ($exists) {
+            $slug = str_slug($title . $i);
+
+            $exists = self::where('slug', $slug)->exists();
+            $i++;
+        }
+
+        return $slug;
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
 
     public function getIsSubscribedToAttribute()
     {
@@ -37,7 +63,7 @@ class Thread extends Model
 
     public function path()
     {
-        return "/threads/{$this->channel->slug}/{$this->id}";
+        return "/threads/{$this->channel->slug}/{$this->slug}";
     }
 
     public function replies()
