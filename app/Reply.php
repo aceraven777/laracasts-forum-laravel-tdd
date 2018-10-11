@@ -17,6 +17,9 @@ class Reply extends Model
 
     protected $appends = ['favoritesCount', 'isFavorited'];
 
+    /**
+     * Boot function
+     */
     protected static function boot()
     {
         parent::boot();
@@ -30,26 +33,52 @@ class Reply extends Model
         });
     }   
 
+    /**
+     * Owner of the reply
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function owner()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    /**
+     * Thread of the reply
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function thread()
     {
         return $this->belongsTo(Thread::class, 'thread_id');
     }
 
+    /**
+     * Path of reply
+     *
+     * @return string
+     */
     public function path()
     {
         return $this->thread->path() . "#reply-{$this->id}";
     }
 
+    /**
+     * Is reply was just published
+     *
+     * @return boolean
+     */
     public function wasJustPublished()
     {
         return $this->created_at->addMinute() > Carbon::now();
     }
 
+    /**
+     * Get all mentioned users in the body
+     *
+     * @param boolean $body
+     * @return array
+     */
     public function mentionedUsers($body = false)
     {
         preg_match_all('/\@([\w\-]+)/', $body ?: $this->body, $matches);
@@ -57,6 +86,11 @@ class Reply extends Model
         return $matches[1];
     }
 
+    /**
+     * Body attribute mutator
+     *
+     * @param string $body
+     */
     public function setBodyAttribute($body)
     {
         $mentionedUsers = $this->mentionedUsers($body);
@@ -69,5 +103,15 @@ class Reply extends Model
         }
 
         $this->attributes['body'] = preg_replace($patterns, $replacements, $body);
+    }
+
+    /**
+     * If reply is best reply
+     *
+     * @return boolean
+     */
+    public function isBest()
+    {
+        return $this->thread->best_reply_id == $this->id;
     }
 }

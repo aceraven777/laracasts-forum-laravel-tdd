@@ -19,6 +19,9 @@ class Thread extends Model
 
     protected $visits = null;
 
+    /**
+     * Boot function
+     */
     protected static function boot()
     {
         parent::boot();
@@ -32,6 +35,12 @@ class Thread extends Model
         });
     }
 
+    /**
+     * Generate unique slug of the thread
+     *
+     * @param string $title
+     * @return string
+     */
     public static function generateUniqueSlug($title)
     {
         $original_slug = str_slug($title);
@@ -72,11 +81,21 @@ class Thread extends Model
         return $slug;
     }
 
+    /**
+     * Route key name
+     *
+     * @return string
+     */
     public function getRouteKeyName()
     {
         return 'slug';
     }
 
+    /**
+     * Accessor for is_subscribed_to
+     *
+     * @return boolean
+     */
     public function getIsSubscribedToAttribute()
     {
         return $this->subscriptions()
@@ -84,26 +103,51 @@ class Thread extends Model
             ->exists();
     }
 
+    /**
+     * Thread URI path
+     *
+     * @return string
+     */
     public function path()
     {
         return "/threads/{$this->channel->slug}/{$this->slug}";
     }
 
+    /**
+     * Replies to the thread
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function replies()
     {
         return $this->hasMany(Reply::class);
     }
 
+    /**
+     * Creator of the thread
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function creator()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    /**
+     * Channel of the thread it belongs to
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function channel()
     {
         return $this->belongsTo(Channel::class);
     }
 
+    /**
+     * Subscriptions to the thread
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function subscriptions()
     {
         return $this->hasMany(ThreadSubscription::class);
@@ -118,6 +162,11 @@ class Thread extends Model
         return $reply;
     }
 
+    /**
+     * Notify all subscribers of thread
+     *
+     * @param \App\Reply $reply
+     */
     public function notifySubscribers($reply)
     {
         $this->subscriptions()
@@ -127,6 +176,13 @@ class Thread extends Model
             ->notify($reply);        
     }
 
+    /**
+     * Local scope filter for thread
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param \App\Filters\ThreadFilters            $filters
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     public function scopeFilter($query, $filters)
     {
         return $filters->apply($query);
@@ -149,6 +205,11 @@ class Thread extends Model
         return $this;
     }
 
+    /**
+     * Unsubscribe user to thread
+     *
+     * @param int $userId
+     */
     public function unsubscribe($userId = null)
     {
         $this->subscriptions()
@@ -156,6 +217,12 @@ class Thread extends Model
             ->delete();
     }
 
+    /**
+     * Is user has updates in the thread
+     *
+     * @param \App\User $user
+     * @return boolean
+     */
     public function hasUpdatesFor($user)
     {
         $key = $user->visitedThreadCacheKey($this);
@@ -163,6 +230,11 @@ class Thread extends Model
         return $this->updated_at > cache($key);
     }
 
+    /**
+     * Get thread visits
+     *
+     * @return Visits
+     */
     public function visits()
     {
         if (! $this->visits) {
@@ -170,5 +242,16 @@ class Thread extends Model
         }
 
         return $this->visits;
+    }
+
+    /**
+     * Set best reply
+     *
+     * @param Reply $reply
+     */
+    public function markBestReply(Reply $reply)
+    {
+        $this->best_reply_id = $reply->id;
+        $this->save();
     }
 }
