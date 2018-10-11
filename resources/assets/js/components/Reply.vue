@@ -1,5 +1,5 @@
 <template>
-	<div :id="'reply-'+id" class="panel panel-default">
+	<div :id="'reply-'+id" class="panel" :class="isBest ? 'panel-success' : 'panel-default'">
 		<div class="panel-heading">
 			<div class="level">
 				<h5 class='flex'>
@@ -28,9 +28,13 @@
 			<div v-else v-html="body"></div>
 		</div>
 		
-		<div class="panel-footer level" v-if="canUpdate">
-			<button class="btn btn-xs mr-1" @click="editing = true">Edit</button>
-			<button class="btn btn-xs btn-danger mr-1" @click="destroy">Delete</button>
+		<div class="panel-footer level">
+			<div v-if="canUpdate">
+				<button class="btn btn-xs mr-1" @click="editing = true">Edit</button>
+				<button class="btn btn-xs btn-danger mr-1" @click="destroy">Delete</button>
+			</div>
+
+			<button class="btn btn-xs btn-default ml-a" @click="markBestReply" v-show="! isBest">Best Reply?</button>
 		</div>
 	</div>
 </template>
@@ -49,6 +53,7 @@
                 editing: false,
                 id: this.data.id,
                 body: this.data.body,
+                isBest: false,
             };
         },
 
@@ -78,25 +83,6 @@
 			},
 		},
 
-        // mounted() {
-		// 	$('#reply-' + this.data.id + ' form textarea').atwho({
-        //         at: "@",
-        //         delay: 750,
-        //         // data: ['yeye', 'bonel'],
-        //         callbacks: {
-        //             remoteFilter: function(query, callback) {
-        //                 if (! query) {
-        //                     return;
-        //                 }
-
-        //                 $.getJSON("/api/users", {name: query}, function(usernames) {
-        //                     callback(usernames);
-        //                 });
-        //             }
-        //         }
-        //     });
-        // },
-
         methods: {
             update() {
                 axios.patch('/replies/' + this.data.id, {
@@ -123,6 +109,13 @@
 					flash('The reply has been favorited.');
 				});
             },
+
+			markBestReply() {
+				axios.post('/replies/' + this.data.id + '/best').then(() => {
+					this.isBest = true;
+					flash('The reply has been mark as best reply.');
+				});
+			},
         },
 
 		updated() {
@@ -132,7 +125,6 @@
 				$('#reply-' + this.data.id + ' form textarea').atwho({
 					at: "@",
 					delay: 750,
-					// data: ['yeye', 'bonel'],
 					callbacks: {
 						remoteFilter: function(query, callback) {
 							if (! query) {
