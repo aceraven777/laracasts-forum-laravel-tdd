@@ -94,6 +94,7 @@ class User extends Authenticatable
     public function confirm()
     {
         $this->confirmed = true;
+        $this->confirmation_token = null;
         $this->save();
     }
 
@@ -106,5 +107,16 @@ class User extends Authenticatable
     public function getAvatarPathAttribute($avatar)
     {
         return $avatar ? asset('storage/'.$avatar) : asset('images/avatars/default.jpg');
+    }
+
+    public static function generateConfirmationToken($email)
+    {
+        do {
+            $token = str_limit(md5($email . str_random()), 25, '');
+
+            $exists = self::where('confirmation_token', $token)->exists();
+        } while($exists);
+
+        return $token;
     }
 }
