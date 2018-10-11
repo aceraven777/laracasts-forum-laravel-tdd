@@ -38,13 +38,35 @@ class Thread extends Model
 
         $exists = self::where('slug', $slug)->exists();
 
-        $i = 2;
-        while ($exists) {
-            $slug = str_slug($title . $i);
+        // If there are no duplicates
+        if (! $exists) {
+            return $slug;
+        }
+
+        // Get how many duplicates
+        $max_count = self::where('title', $title)->count();
+
+        // Check for duplicates from $max_count + 1 to 2
+        $i = $max_count + 1;
+        do {
+            $slug = str_slug($title . '-' . $i);
+
+            $exists = self::where('slug', $slug)->exists();
+            $i--;
+        } while ($exists && $i > 1);
+
+        if (! $exists) {
+            return $slug;
+        }
+
+        // Check for duplicates from $max_count + 2 to infinity
+        $i = $max_count + 2;
+        do {
+            $slug = str_slug($title . '-' . $i);
 
             $exists = self::where('slug', $slug)->exists();
             $i++;
-        }
+        } while ($exists);
 
         return $slug;
     }

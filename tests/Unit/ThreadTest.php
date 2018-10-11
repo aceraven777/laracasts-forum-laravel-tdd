@@ -170,14 +170,4 @@ class ThreadTest extends TestCase
 
         $this->assertEquals(2, $visits->count());
     }
-
-    /** @test */
-    public function a_thread_must_generate_unique_slug()
-    {
-        $unique_slug = Thread::generateUniqueSlug($this->thread->title);
-
-        $this->assertDatabaseMissing('threads', [
-            'slug' => $unique_slug
-        ]);
-    }
 }

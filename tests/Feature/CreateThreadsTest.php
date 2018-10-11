@@ -80,6 +80,31 @@ class CreateThreadsTest extends TestCase
     }
 
     /** @test */
+    public function a_thread_requires_a_unique_slug()
+    {
+        $duplicate_title = 'Foo title';
+
+        $user = create('App\User');
+        $this->signIn($user);
+        
+        $thread = create('App\Thread', ['title' => $duplicate_title]);
+
+        $thread= $thread->fresh();
+
+        $this->publishThread(['title' => $duplicate_title]);
+
+        $this->assertDatabaseHas('threads', [
+            'slug' => $thread->slug . '-2',
+        ]);
+
+        $this->publishThread(['title' => $duplicate_title]);
+
+        $this->assertDatabaseHas('threads', [
+            'slug' => $thread->slug . '-3',
+        ]);
+    }
+
+    /** @test */
     public function unauthorized_users_may_not_delete_threads()
     {
         $this->withExceptionHandling();
