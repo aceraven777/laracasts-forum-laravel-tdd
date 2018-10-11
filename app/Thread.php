@@ -34,9 +34,10 @@ class Thread extends Model
 
     public static function generateUniqueSlug($title)
     {
-        $slug = str_slug($title);
+        $original_slug = str_slug($title);
+        $slug = $original_slug;
 
-        $exists = self::where('slug', $slug)->exists();
+        $exists = static::where('slug', $slug)->exists();
 
         // If there are no duplicates
         if (! $exists) {
@@ -44,14 +45,14 @@ class Thread extends Model
         }
 
         // Get how many duplicates
-        $max_count = self::where('title', $title)->count();
+        $max_count = static::where('title', $title)->count();
 
-        // Check for duplicates from $max_count + 1 to 2
+        // Check for duplicates from $max_count+1 to 2
         $i = $max_count + 1;
         do {
-            $slug = str_slug($title . '-' . $i);
+            $slug = $original_slug . '-' . $i;
 
-            $exists = self::where('slug', $slug)->exists();
+            $exists = static::where('slug', $slug)->exists();
             $i--;
         } while ($exists && $i > 1);
 
@@ -59,12 +60,12 @@ class Thread extends Model
             return $slug;
         }
 
-        // Check for duplicates from $max_count + 2 to infinity
+        // Check for duplicates from $max_count+2 to infinity
         $i = $max_count + 2;
         do {
-            $slug = str_slug($title . '-' . $i);
+            $slug = $original_slug . '-' . $i;
 
-            $exists = self::where('slug', $slug)->exists();
+            $exists = static::where('slug', $slug)->exists();
             $i++;
         } while ($exists);
 

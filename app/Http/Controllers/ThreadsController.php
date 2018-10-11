@@ -73,6 +73,10 @@ class ThreadsController extends Controller
             'body' => request('body'),
         ]);
 
+        if ($request->wantsJson()) {
+            return response($thread, 201);
+        }
+
         return redirect($thread->path())
             ->with('flash', 'Your thread has been published!');
     }
@@ -120,8 +124,8 @@ class ThreadsController extends Controller
     /**
      * Get threads
      *
-     * @param  \App\Channel               $channel [description]
-     * @param  \App\Filters\ThreadFilters $filters [description]
+     * @param  \App\Channel               $channel
+     * @param  \App\Filters\ThreadFilters $filters
      * @return mixed
      */
     protected function getThreads($channel, $filters)
