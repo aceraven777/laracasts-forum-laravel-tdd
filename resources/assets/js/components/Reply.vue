@@ -135,14 +135,12 @@
 				axios.post('/replies/' + this.id + '/best').then(() => {
 					window.events.$emit('best-reply-selected', this.id);
 				}).catch(function (error) {
-					console.log('error');
-					console.log(error);
 					if (error.response.status == 403) {
-						flash('Your action is unauthorized.');
+						flash('Your action is unauthorized.', 'danger');
 						return;
 					}
 
-					flash('An error has occurred.');
+					flash('An error has occurred.', 'danger');
 				});
 			},
         },

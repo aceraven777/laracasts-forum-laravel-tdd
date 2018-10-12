@@ -167,15 +167,6 @@ class Thread extends Model
     }
 
     /**
-     * Lock the thread
-     */
-    public function lock()
-    {
-        $this->locked = true;
-        $this->save();
-    }
-
-    /**
      * Notify all subscribers of thread
      *
      * @param \App\Reply $reply
