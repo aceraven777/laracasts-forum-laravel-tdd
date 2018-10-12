@@ -47,7 +47,7 @@ class ParticipateInThreadsTest extends TestCase
         $this->signIn();
         $reply = create('App\Reply');
 
-        $this->delete("replies/{$reply->id}")
+        $this->delete(route('replies.destroy', $reply))
             ->assertStatus(403);
     }
 
@@ -59,7 +59,7 @@ class ParticipateInThreadsTest extends TestCase
 
         $reply = create('App\Reply', ['user_id' => $user->id]);
 
-        $this->delete("replies/{$reply->id}")->assertStatus(302);
+        $this->delete(route('replies.destroy', $reply))->assertStatus(302);
 
         $this->assertDatabaseMissing('replies', ['id' => $reply->id]);
 
