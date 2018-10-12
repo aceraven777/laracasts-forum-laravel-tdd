@@ -19,6 +19,10 @@ class Thread extends Model
 
     protected $visits = null;
 
+    protected $casts = [
+        'locked' => 'boolean',
+    ];
+
     /**
      * Boot function
      */
