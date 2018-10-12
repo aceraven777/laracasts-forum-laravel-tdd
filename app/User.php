@@ -98,6 +98,11 @@ class User extends Authenticatable
         $this->save();
     }
 
+    public function isAdmin()
+    {
+        return in_array($this->name, ['ArisLacdao', 'JohnDoe', 'JaneDoe']);
+    }
+
     /**
      * Accessor for avatar_path
      *
@@ -109,6 +114,12 @@ class User extends Authenticatable
         return $avatar ? asset('storage/'.$avatar) : asset('images/avatars/default.jpg');
     }
 
+    /**
+     * Get confirmation token of user
+     *
+     * @param string $email
+     * @return string
+     */
     public static function generateConfirmationToken($email)
     {
         do {

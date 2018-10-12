@@ -23,12 +23,12 @@ class ThreadsController extends Controller
      * Display a listing of the resource.
      *
      * @param  \Illuminate\Http\Request   $request
-     * @param  \App\Channel               $channel
      * @param  \App\Filters\ThreadFilters $filters
      * @param  \App\Trending              $trending
+     * @param  \App\Channel               $channel
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request, Channel $channel, ThreadFilters $filters, Trending $trending)
+    public function index(Request $request, ThreadFilters $filters, Trending $trending, Channel $channel)
     {
         $threads = $this->getThreads($channel, $filters);
 
@@ -89,7 +89,7 @@ class ThreadsController extends Controller
      * @param  \App\Trending $trending
      * @return \Illuminate\Http\Response
      */
-    public function show($channel, Thread $thread, Trending $trending)
+    public function show(Channel $channel, Thread $thread, Trending $trending)
     {
         if (auth()->check()) {
             auth()->user()->read($thread);
