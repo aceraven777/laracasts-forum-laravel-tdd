@@ -44,7 +44,7 @@
 	import moment from 'moment';
 
     export default {
-        props: ['data'],
+        props: ['data', 'bestReply'],
 
         components: { Favorite },
 
@@ -53,7 +53,7 @@
                 editing: false,
                 id: this.data.id,
                 body: this.data.body,
-                isBest: false,
+                isBest: this.data.isBest,
 				reply: this.data,
             };
         },
@@ -73,6 +73,37 @@
 				}
 			},
 		},
+
+		created() {
+			window.events.$on('best-reply-selected', (id) => {
+				this.isBest = (id === this.id);
+			});
+		},
+
+		updated() {
+			if (this.editing) {
+				var component = this;
+
+				$('#reply-' + this.data.id + ' form textarea').atwho({
+					at: "@",
+					delay: 750,
+					callbacks: {
+						remoteFilter: function(query, callback) {
+							if (! query) {
+								return;
+							}
+
+							$.getJSON("/api/users", {name: query}, function(usernames) {
+								callback(usernames);
+							});
+						}
+					}
+				})
+				.on('inserted.atwho', function (event, flag, query) {
+					component.formattedBody = $(this).val();
+				});
+			}
+        },
 
         methods: {
             update() {
@@ -103,35 +134,18 @@
 
 			markBestReply() {
 				axios.post('/replies/' + this.data.id + '/best').then(() => {
-					this.isBest = true;
-					flash('The reply has been mark as best reply.');
+					window.events.$emit('best-reply-selected', this.data.id);
+				}).catch(function (error) {
+					console.log('error');
+					console.log(error);
+					if (error.response.status == 403) {
+						flash('Your action is unauthorized.');
+						return;
+					}
+
+					flash('An error has occurred.');
 				});
 			},
-        },
-
-		updated() {
-			if (this.editing) {
-				var component = this;
-
-				$('#reply-' + this.data.id + ' form textarea').atwho({
-					at: "@",
-					delay: 750,
-					callbacks: {
-						remoteFilter: function(query, callback) {
-							if (! query) {
-								return;
-							}
-
-							$.getJSON("/api/users", {name: query}, function(usernames) {
-								callback(usernames);
-							});
-						}
-					}
-				})
-				.on('inserted.atwho', function (event, flag, query) {
-					component.formattedBody = $(this).val();
-				});
-			}
         },
     }
 </script>
