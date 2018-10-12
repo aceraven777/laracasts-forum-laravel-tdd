@@ -15,11 +15,21 @@ try {
 
 window.Vue = require('vue');
 
-window.Vue.prototype.authorize = function (handler) {
-    let user = window.App.user;
+let authorizations = require('./authorizations');
 
-    return user ? handler(user) : false;
+window.Vue.prototype.authorize = function (...params) {
+    if (! window.App.signedIn) {
+        return false;
+    }
+
+    if (typeof params[0] === 'string') {
+        return authorizations[params[0]](params[1]);
+    }
+
+    return params[0](window.App.user);
 };
+
+window.Vue.prototype.signedIn = window.App.signedIn;
 
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests

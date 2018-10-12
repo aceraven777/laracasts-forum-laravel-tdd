@@ -29,7 +29,7 @@
 		</div>
 		
 		<div class="panel-footer level">
-			<div v-if="canUpdate">
+			<div v-if="authorize('updateReply', reply)">
 				<button class="btn btn-xs mr-1" @click="editing = true">Edit</button>
 				<button class="btn btn-xs btn-danger mr-1" @click="destroy">Delete</button>
 			</div>
@@ -54,22 +54,13 @@
                 id: this.data.id,
                 body: this.data.body,
                 isBest: false,
+				reply: this.data,
             };
         },
 
 		computed: {
 			ago() {
 				return moment(this.data.created_at).fromNow() + '...';
-			},
-
-			signedIn() {
-				return window.App.signedIn;
-			},
-
-			canUpdate() {
-				return this.authorize((user) => {
-					return this.data.user_id == user.id;
-				});
 			},
 
 			formattedBody: {
