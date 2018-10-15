@@ -3,9 +3,21 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
+use App\Rules\Recaptcha;
 
 class CreateThreadsTest extends TestCase
 {
+    public function setUp()
+    {
+        parent::setUp();
+
+        app()->singleton(Recaptcha::class, function () {
+            return \Mockery::mock(Recaptcha::class, function ($m) {
+                $m->shouldReceive('passes')->andReturn(true);
+            });
+        });
+    }
+
     /** @test */
     public function guest_may_not_create_threads()
     {
@@ -42,15 +54,14 @@ class CreateThreadsTest extends TestCase
     /** @test */
     public function a_user_can_create_new_forum_threads()
     {
-        $user = create('App\User');
-        $this->signIn($user);
+        $title = 'Some title';
+        $body = 'Some body.';
 
-        $thread = make('App\Thread');
-        $response = $this->post(route('threads.store'), $thread->toArray());
+        $response = $this->publishThread(['title' => $title, 'body' => $body]);
 
         $this->get($response->headers->get('Location'))
-            ->assertSee(e($thread->title))
-            ->assertSee(e($thread->body));
+            ->assertSee(e($title))
+            ->assertSee(e($body));
     }
 
     /** @test */
@@ -65,6 +76,15 @@ class CreateThreadsTest extends TestCase
     {
         $this->publishThread(['body' => null])
             ->assertSessionHasErrors('body');
+    }
+
+    /** @test */
+    public function a_thread_requires_recaptcha_verification()
+    {
+        unset(app()[Recaptcha::class]);
+
+        $this->publishThread()
+            ->assertSessionHasErrors('g-recaptcha-response');
     }
 
     /** @test */
@@ -149,6 +169,6 @@ class CreateThreadsTest extends TestCase
 
         $thread = make('App\Thread', $overrides);
 
-        return $this->post(route('threads.store'), $thread->toArray());
+        return $this->post(route('threads.store'), $thread->toArray() + ['g-recaptcha-response' => 'token']);
     }
 }
