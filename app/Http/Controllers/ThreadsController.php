@@ -87,12 +87,12 @@ class ThreadsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Channel  $channel
-     * @param  \App\Thread   $thread
      * @param  \App\Trending $trending
+     * @param  string        $channel
+     * @param  \App\Thread   $thread
      * @return \Illuminate\Http\Response
      */
-    public function show(Channel $channel, Thread $thread, Trending $trending)
+    public function show(Trending $trending, $channel, Thread $thread)
     {
         if (auth()->check()) {
             auth()->user()->read($thread);
@@ -105,13 +105,34 @@ class ThreadsController extends Controller
     }
 
     /**
+     * Update the thread.
+     *
+     * @param Request $request
+     * @param string  $channel
+     * @param Thread  $thread
+     */
+    public function update(Request $request, $channel, Thread $thread)
+    {
+        $this->authorize('update', $thread);
+        
+        $data = $request->validate([
+            'title' => 'required|spamfree',
+            'body' => 'required|spamfree',
+        ]);
+
+        $thread->update($data);
+
+        return $thread;
+    }
+
+    /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Channel  $channel
+     * @param  string        $channel
      * @param  \App\Thread   $thread
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Channel $channel, Thread $thread)
+    public function destroy($channel, Thread $thread)
     {
         $this->authorize('update', $thread);
 
