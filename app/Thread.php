@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Laravel\Scout\Searchable;
 use App\Traits\RecordsActivity;
 use App\Events\ThreadHasNewReply;
 use App\Events\ThreadReceivedNewReply;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Thread extends Model
 {
-    use RecordsActivity;
+    use RecordsActivity, Searchable;
 
     protected $fillable = ['user_id', 'channel_id', 'title', 'body'];
 
