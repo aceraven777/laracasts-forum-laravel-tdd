@@ -11,7 +11,7 @@ class UserAvatarController extends Controller
     {
         $this->authorize('update', $user);
 
-        $this->validate(request(), [
+        request()->validate([
             'avatar' => 'required|image'
         ]);
 
