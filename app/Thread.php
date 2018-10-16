@@ -18,8 +18,6 @@ class Thread extends Model
     
     protected $appends = ['isSubscribedTo'];
 
-    protected $visits = null;
-
     protected $casts = [
         'locked' => 'boolean',
     ];
@@ -233,20 +231,6 @@ class Thread extends Model
         $key = $user->visitedThreadCacheKey($this);
 
         return $this->updated_at > cache($key);
-    }
-
-    /**
-     * Get thread visits
-     *
-     * @return Visits
-     */
-    public function visits()
-    {
-        if (! $this->visits) {
-            $this->visits = new Visits($this, 'threads');
-        }
-
-        return $this->visits;
     }
 
     /**
