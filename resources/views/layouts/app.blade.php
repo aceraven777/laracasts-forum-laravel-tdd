@@ -12,6 +12,7 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <link href="//cdnjs.cloudflare.com/ajax/libs/trix/1.0.0/trix.css" rel="stylesheet">
 
     <!-- Scripts -->
     <script>
