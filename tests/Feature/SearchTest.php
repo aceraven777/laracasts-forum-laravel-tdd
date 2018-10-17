@@ -24,7 +24,12 @@ class SearchTest extends TestCase
         } while(empty($results));
 
         $this->assertCount(2, $results['data']);
+    }
 
-        Thread::latest()->take(4)->unsearchable();
+    protected function tearDown()
+    {
+        if (config('scout.driver')) {
+            Thread::all()->unsearchable();
+        }
     }
 }
