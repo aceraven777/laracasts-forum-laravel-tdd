@@ -2,13 +2,7 @@
     <div>
         <div v-if="signedIn">
             <div class="form-group">
-                <textarea name="body"
-                    id="body"
-                    class="form-control"
-                    placeholder="Have something to say?"
-                    rows="5"
-                    required
-                    v-model="body"></textarea>
+                <wysiwyg v-model="body" name="body" placeholder="Have something to say?" :shouldClear="completed"></wysiwyg>
             </div>
 
             <button type="submit"
@@ -27,6 +21,7 @@
         data() {
             return {
                 body: '',
+                completed: false,
             };
         },
 
@@ -36,7 +31,6 @@
             $('#body').atwho({
                 at: "@",
                 delay: 750,
-                // data: ['yeye', 'bonel'],
                 callbacks: {
                     remoteFilter: function(query, callback) {
                         if (! query) {
@@ -56,6 +50,8 @@
 
         methods: {
             addReply() {
+                this.completed = false;
+
                 axios.post(location.pathname + '/replies', {
                     body: this.body,
                 })
@@ -64,6 +60,7 @@
                 })
                 .then(({data}) => {
                     this.body = '';
+                    this.completed = true;
 
                     flash('Your reply has been posted.');
 

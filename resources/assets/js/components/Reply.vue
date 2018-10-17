@@ -18,7 +18,7 @@
 			<div v-if="editing">
 				<form @submit.prevent="update">
 					<div class="form-group">
-						<textarea class='form-control' v-model="formattedBody" required></textarea>
+						<wysiwyg v-model="formattedBody"></wysiwyg>
 					</div>
 
 					<button class="btn btn-xs btn-primary" type="submit">Update</button>
@@ -64,7 +64,8 @@
 
 			formattedBody: {
 				get: function () {
-					return this.$options.filters.striphtml(this.body);
+					return this.body;
+					// return this.$options.filters.striphtml(this.body);
 				},
 
 				set: function (newValue) {
