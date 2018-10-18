@@ -30,6 +30,8 @@ Vue.filter('striphtml', function (value) {
     return text;
 });
 
+Vue.config.ignoredElements = ['trix-editor'];
+
 const app = new Vue({
     el: '#app'
 });
