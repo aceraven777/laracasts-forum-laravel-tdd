@@ -8,7 +8,7 @@ use Tests\TestCase;
 class UserTest extends TestCase
 {
     /** @test */
-    public function a_user_can_fet_their_most_recent_reply()
+    public function a_user_can_fetch_their_most_recent_reply()
     {
         $user = create('App\User');
         $reply = create('App\Reply', [

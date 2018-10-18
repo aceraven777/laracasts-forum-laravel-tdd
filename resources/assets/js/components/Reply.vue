@@ -18,7 +18,7 @@
 			<div v-if="editing">
 				<form @submit.prevent="update">
 					<div class="form-group">
-						<wysiwyg v-model="formattedBody"></wysiwyg>
+						<wysiwyg v-model="body"></wysiwyg>
 					</div>
 
 					<button class="btn btn-xs btn-primary" type="submit">Update</button>
@@ -61,17 +61,6 @@
 			ago() {
 				return moment(this.reply.created_at).fromNow() + '...';
 			},
-
-			formattedBody: {
-				get: function () {
-					return this.body;
-					// return this.$options.filters.striphtml(this.body);
-				},
-
-				set: function (newValue) {
-					this.body = newValue;
-				}
-			},
 		},
 
 		created() {
@@ -100,7 +89,7 @@
 					}
 				})
 				.on('inserted.atwho', function (event, flag, query) {
-					component.formattedBody = $(this).val();
+					component.body = $(this).val();
 				});
 			}
         },

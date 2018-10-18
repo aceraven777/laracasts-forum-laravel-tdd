@@ -4,7 +4,6 @@ namespace App;
 
 use Laravel\Scout\Searchable;
 use App\Traits\RecordsActivity;
-use App\Events\ThreadHasNewReply;
 use App\Events\ThreadReceivedNewReply;
 use Illuminate\Database\Eloquent\Model;
 
