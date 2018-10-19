@@ -47,23 +47,6 @@ class ReplyTest extends TestCase
     }
 
     /** @test */
-    public function it_wraps_mentioned_usernames_in_the_body_within_anchor_tags()
-    {
-        $user = create('App\User', [
-            'name' => 'JaneDoe'
-        ]);
-        
-        $reply = new Reply([
-            'body' => "Hello @{$user->name}."
-        ]);
-
-        $this->assertEquals(
-            'Hello <a href="' . route('profile', [$user]) . '">@'.$user->name.'</a>.',
-            $reply->body
-        );
-    }
-
-    /** @test */
     public function it_knows_if_it_is_the_best_reply()
     {
         $reply = create('App\Reply');

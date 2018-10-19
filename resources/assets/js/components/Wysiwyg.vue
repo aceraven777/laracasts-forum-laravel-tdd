@@ -1,6 +1,6 @@
 <template>
     <div>
-        <input id="trix" type="hidden" :name="name" :value="value">
+        <input id="trix" type="hidden" :name="name" :value="value" ref="aaa">
 
         <trix-editor ref="trix" input="trix" :placeholder="placeholder"></trix-editor>
     </div>
@@ -13,8 +13,16 @@
         props: ['name', 'value', 'placeholder', 'shouldClear'],
 
         mounted () {
+            this.$refs.trix.addEventListener('trix-initialize', (e) => {
+                this.$emit('trix-initialize', e);
+            });
+
             this.$refs.trix.addEventListener('trix-change', (e) => {
-                this.$emit('input', e.target.innerHTML)
+                this.$emit('input', e.target.innerHTML);
+            });
+
+            this.$refs.trix.addEventListener('keydown', (e) => {
+                this.$emit('keydown', e);
             });
 
             this.$watch('shouldClear', () => {

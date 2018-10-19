@@ -19,8 +19,6 @@ Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 
-Route::view('/scan', 'scan');
-
 Route::get('/threads/create', 'ThreadsController@create')->name('threads.create')->middleware('must-be-confirmed');
 Route::get('/threads/search', 'SearchController@show');
 Route::get('/threads/{channel}/{thread}', 'ThreadsController@show');

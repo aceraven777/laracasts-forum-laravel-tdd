@@ -11,9 +11,9 @@ class UsersController extends Controller
     {
         $search = request('name');
 
-        return User::where('name', 'LIKE', "{$search}%")
+        return User::select('name')
+            ->where('name', 'LIKE', "{$search}%")
             ->take(5)
-            ->get()
-            ->pluck('name');
+            ->get();
     }
 }

@@ -87,25 +87,6 @@ class Reply extends Model
     }
 
     /**
-     * Body attribute mutator
-     *
-     * @param string $body
-     */
-    public function setBodyAttribute($body)
-    {
-        $mentionedUsers = $this->mentionedUsers($body);
-
-        $patterns = [];
-        $replacements = [];
-        foreach ($mentionedUsers as $user) {
-            $patterns[] = '/@' . $user . '/';
-            $replacements[] = '<a href="' . route('profile', [$user]) . '">@'.$user.'</a>';
-        }
-
-        $this->attributes['body'] = preg_replace($patterns, $replacements, $body);
-    }
-
-    /**
      * If reply is best reply
      *
      * @return boolean

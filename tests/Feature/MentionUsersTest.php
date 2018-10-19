@@ -35,7 +35,7 @@ class MentionUsersTest extends TestCase
         $users = $this->json('get', '/api/users', ['name' => 'john'])->json();
 
         $this->assertCount(2, $users);
-        $this->assertTrue(in_array($john->name, $users));
-        $this->assertTrue(in_array($john2->name, $users));
+        $this->assertTrue(in_array($john->name, array_pluck($users, 'name')));
+        $this->assertTrue(in_array($john2->name, array_pluck($users, 'name')));
     }
 }

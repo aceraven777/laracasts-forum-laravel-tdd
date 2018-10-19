@@ -2,7 +2,7 @@
     <div>
         <div v-if="signedIn">
             <div class="form-group">
-                <wysiwyg v-model="body" name="body" placeholder="Have something to say?" :shouldClear="completed"></wysiwyg>
+                <wysiwyg v-model="body" name="body" placeholder="Have something to say?" :shouldClear="completed" ref="trix"></wysiwyg>
             </div>
 
             <button type="submit"
@@ -16,6 +16,7 @@
 <script>
     import 'jquery.caret';
     import 'at.js';
+    import Tribute from "tributejs";
 
     export default {
         data() {
@@ -26,25 +27,38 @@
         },
 
         mounted() {
-            var component = this;
+            let component = this;
+            let tribute;
 
-            $('#body').atwho({
-                at: "@",
-                delay: 750,
-                callbacks: {
-                    remoteFilter: function(query, callback) {
+            this.$refs.trix.$on('trix-initialize', (e) => {
+                tribute = new Tribute({
+                    menuItemTemplate: function (item) {
+                        return item.string;
+                    },
+                    lookup: 'name',
+                    fillAttr: 'name',
+                    values: function (query, callback) {
                         if (! query) {
                             return;
                         }
 
-                        $.getJSON("/api/users", {name: query}, function(usernames) {
-                            callback(usernames);
+                        $.getJSON("/api/users", {name: query}, function(users) {
+                            callback(users);
                         });
+                    },
+                    selectTemplate: function (item) {
+                        return '<span contenteditable="false"><a href="/profiles/' + item.original.name + '" >@' + item.original.name + '</a></span>';
                     }
-                }
-            })
-            .on('inserted.atwho', function (event, flag, query) {
-                component.body = $(this).val();
+                });
+
+                this.$refs.trix.$on('keydown', (e) => {
+                    // If user has pressed space
+                    if (e.keyCode == 32) {
+                        tribute.hideMenu();
+                    }
+                });
+
+                tribute.attach(this.$refs.trix.$refs.trix);
             });
         },
 
