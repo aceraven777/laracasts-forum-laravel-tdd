@@ -252,4 +252,15 @@ class Thread extends Model
     {
         return $this->toArray() + ['path' => $this->path()];
     }
+
+    /**
+     * Sanitize body attribute
+     *
+     * @param string $body
+     * @return string
+     */
+    public function getBodyAttribute($body)
+    {
+        return \Purify::clean($body);
+    }
 }

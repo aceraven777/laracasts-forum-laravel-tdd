@@ -96,8 +96,24 @@ class Reply extends Model
         return $this->thread->best_reply_id == $this->id;
     }
 
+    /**
+     * If reply is the best reply in thread
+     *
+     * @return boolean
+     */
     public function getIsBestAttribute()
     {
         return $this->isBest();
+    }
+
+    /**
+     * Sanitize body attribute
+     *
+     * @param string $body
+     * @return string
+     */
+    public function getBodyAttribute($body)
+    {
+        return \Purify::clean($body);
     }
 }
