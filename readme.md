@@ -30,6 +30,12 @@ DB_USERNAME=homestead
 DB_PASSWORD=secret
 ```
 
+Then, migrate your database to create tables.
+
+```bash
+php artisan migrate
+```
+
 ### Step 3.
 
 reCAPTCHA is a Google tool to help prevent forum spam. You'll need to creaate a free acount (don't worry, it's quick).
