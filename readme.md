@@ -38,7 +38,7 @@ reCAPTCHA is a Google tool to help prevent forum spam. You'll need to creaate a 
 
 Choose reCAPTCHA V2, and specify your local (and eventually production) domain name, as illustrated in the image below.
 
-![recaptcha example](https://photos-2.dropbox.com/t/2/AAD0oUp45M_jCBaogaf-bMudZEX6rjtDf8kRF0OtfMD4EQ/12/774859/png/32x32/3/1515013200/0/2/Screenshot%202018-01-03%2011.11.02.png/ENqvYBiOvfHGASAHKAc/Vk2xX4J2ADXnunB9_47pmBAU23j_QVDVgHjxD5rEfTI?dl=0&preserve_transparency=1&size=2048x1536&size_mode=3)
+![recaptcha example](https://imgur.com/a/X39S6zK)
 
 Once submitted, you'll see two important keys that should be referenced in your `.env` file.
 
