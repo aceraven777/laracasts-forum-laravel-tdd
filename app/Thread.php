@@ -30,6 +30,8 @@ class Thread extends Model
 
         static::creating(function ($thread) {
             $thread->slug = static::generateUniqueSlug($thread->title);
+
+            $thread->creator->increment('reputation', 10);
         });
 
         static::deleting(function ($thread) {
@@ -241,6 +243,8 @@ class Thread extends Model
     {
         $this->best_reply_id = $reply->id;
         $this->save();
+
+        $reply->owner->increment('reputation', 50);
     }
 
     /**
