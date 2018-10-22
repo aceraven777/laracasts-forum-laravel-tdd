@@ -1,6 +1,8 @@
-# Laracasts - Let's Build a Forum with Laravel and TDD
+# Council
 
-Forum tutorial with TDD from Laracasts by Jeffrey Way.
+This is an open source forum that was built and maintained at Laracasts.com
+
+TODO
 
 ## Donate
 
