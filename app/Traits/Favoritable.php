@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\Favorite;
+use App\Reputation;
 
 trait Favoritable
 {
@@ -35,6 +36,8 @@ trait Favoritable
         $favorite = $favorites->where($attributes);
 
         if (! $favorite->exists()) {
+            Reputation::award(auth()->user(), Reputation::REPLY_FAVORITED);
+            
             return $favorites->create($attributes);
         }
 
@@ -51,6 +54,10 @@ trait Favoritable
         $favorites = $this->favorites();
         $attributes = ['user_id' => auth()->id()];
         $favorites->where($attributes);
+
+        if ($favorites->exists()) {
+            Reputation::reduce(auth()->user(), Reputation::REPLY_FAVORITED);
+        }
 
         return $favorites->get()->each->delete();
     }
