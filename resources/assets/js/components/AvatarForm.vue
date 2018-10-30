@@ -3,7 +3,10 @@
         <div class="level">
             <img :src="avatar" :alt="user.name" class="mr-1" width="200" height="200" />        
 
-            <h1 v-text="user.name"></h1>
+            <h1>
+                {{ user.name }}
+                <small v-text="reputation"></small>
+            </h1>
         </div>
 
         <div>
@@ -27,6 +30,12 @@
                 avatar: this.user.avatar_path,
                 file: ''
             };
+        },
+
+        computed: {
+            reputation() {
+                return this.user.reputation + 'XP';
+            }
         },
 
         methods: {
