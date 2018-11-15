@@ -5,6 +5,7 @@ namespace App\Providers;
 use View;
 use Cache;
 use App\Channel;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -16,6 +17,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        Schema::defaultStringLength(191);
+
         View::composer(['threads.create', 'layouts.app'], function ($view) {
             $channels = Cache::rememberForever('channels', function () {
                 return Channel::all();
