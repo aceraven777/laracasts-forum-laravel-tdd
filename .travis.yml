@@ -6,6 +6,9 @@ php:
 services:
   - mysql
 
+before_install:
+  - mysql -e 'CREATE DATABASE forum_test;'
+
 before_script:
   - cp .env.travis .env
   - composer self-update
