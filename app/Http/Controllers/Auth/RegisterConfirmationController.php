@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 class RegisterConfirmationController extends Controller
 {
     /**
-     * Confirm user
+     * Confirm user.
      *
      * @return \Illuminate\Http\RedirectResponse
      */
@@ -20,7 +20,7 @@ class RegisterConfirmationController extends Controller
 
         $user = User::where('confirmation_token', $token)
                 ->first();
-        
+
         if (! $user) {
             return redirect(route('threads'))
                 ->with('flash', 'Unknown token.');

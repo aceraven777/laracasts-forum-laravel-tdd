@@ -7,7 +7,7 @@ use App\Thread;
 class LockedThreadsController extends Controller
 {
     /**
-     * Lock the thread
+     * Lock the thread.
      *
      * @param Thread $thread
      * @return Response
@@ -21,7 +21,7 @@ class LockedThreadsController extends Controller
     }
 
     /**
-     * Unlock the thread
+     * Unlock the thread.
      *
      * @param Thread $thread
      * @return Response

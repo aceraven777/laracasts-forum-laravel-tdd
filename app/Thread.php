@@ -14,7 +14,7 @@ class Thread extends Model
     protected $fillable = ['user_id', 'channel_id', 'title', 'body'];
 
     protected $with = ['creator', 'channel'];
-    
+
     protected $appends = ['isSubscribedTo'];
 
     protected $casts = [
@@ -22,7 +22,7 @@ class Thread extends Model
     ];
 
     /**
-     * Boot function
+     * Boot function.
      */
     protected static function boot()
     {
@@ -42,7 +42,7 @@ class Thread extends Model
     }
 
     /**
-     * Generate unique slug of the thread
+     * Generate unique slug of the thread.
      *
      * @param string $title
      * @return string
@@ -65,7 +65,7 @@ class Thread extends Model
         // Check for duplicates from $max_count+1 to 2
         $i = $max_count + 1;
         do {
-            $slug = $original_slug . '-' . $i;
+            $slug = $original_slug.'-'.$i;
 
             $exists = static::where('slug', $slug)->exists();
             $i--;
@@ -78,7 +78,7 @@ class Thread extends Model
         // Check for duplicates from $max_count+2 to infinity
         $i = $max_count + 2;
         do {
-            $slug = $original_slug . '-' . $i;
+            $slug = $original_slug.'-'.$i;
 
             $exists = static::where('slug', $slug)->exists();
             $i++;
@@ -88,7 +88,7 @@ class Thread extends Model
     }
 
     /**
-     * Route key name
+     * Route key name.
      *
      * @return string
      */
@@ -98,9 +98,9 @@ class Thread extends Model
     }
 
     /**
-     * Accessor for is_subscribed_to
+     * Accessor for is_subscribed_to.
      *
-     * @return boolean
+     * @return bool
      */
     public function getIsSubscribedToAttribute()
     {
@@ -110,7 +110,7 @@ class Thread extends Model
     }
 
     /**
-     * Thread URI path
+     * Thread URI path.
      *
      * @return string
      */
@@ -120,7 +120,7 @@ class Thread extends Model
     }
 
     /**
-     * Replies to the thread
+     * Replies to the thread.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
@@ -130,7 +130,7 @@ class Thread extends Model
     }
 
     /**
-     * Creator of the thread
+     * Creator of the thread.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -140,7 +140,7 @@ class Thread extends Model
     }
 
     /**
-     * Channel of the thread it belongs to
+     * Channel of the thread it belongs to.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -150,7 +150,7 @@ class Thread extends Model
     }
 
     /**
-     * Subscriptions to the thread
+     * Subscriptions to the thread.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -169,7 +169,7 @@ class Thread extends Model
     }
 
     /**
-     * Notify all subscribers of thread
+     * Notify all subscribers of thread.
      *
      * @param \App\Reply $reply
      */
@@ -179,11 +179,11 @@ class Thread extends Model
             ->where('user_id', '!=', $reply->user_id)
             ->get()
             ->each
-            ->notify($reply);        
+            ->notify($reply);
     }
 
     /**
-     * Local scope filter for thread
+     * Local scope filter for thread.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @param \App\Filters\ThreadFilters            $filters
@@ -195,8 +195,8 @@ class Thread extends Model
     }
 
     /**
-     * Subscribe a user to the current thread
-     * 
+     * Subscribe a user to the current thread.
+     *
      * @param int|null $userId
      * @return $this
      */
@@ -212,7 +212,7 @@ class Thread extends Model
     }
 
     /**
-     * Unsubscribe user to thread
+     * Unsubscribe user to thread.
      *
      * @param int $userId
      */
@@ -224,10 +224,10 @@ class Thread extends Model
     }
 
     /**
-     * Is user has updates in the thread
+     * Is user has updates in the thread.
      *
      * @param \App\User $user
-     * @return boolean
+     * @return bool
      */
     public function hasUpdatesFor($user)
     {
@@ -237,7 +237,7 @@ class Thread extends Model
     }
 
     /**
-     * Set best reply
+     * Set best reply.
      *
      * @param Reply $reply
      */
@@ -260,7 +260,7 @@ class Thread extends Model
     }
 
     /**
-     * Sanitize body attribute
+     * Sanitize body attribute.
      *
      * @param string $body
      * @return string

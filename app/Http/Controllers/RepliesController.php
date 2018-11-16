@@ -63,7 +63,7 @@ class RepliesController extends Controller
         request()->validate([
             'body' => 'required|spamfree',
         ]);
-        
+
         $reply->update(request(['body']));
     }
 

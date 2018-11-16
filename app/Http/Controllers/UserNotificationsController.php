@@ -15,8 +15,8 @@ class UserNotificationsController extends Controller
     }
 
     /**
-     * Get user unread notifications
-     * 
+     * Get user unread notifications.
+     *
      * @param  User   $user
      * @return string
      */

@@ -25,7 +25,7 @@ class ThreadFilters extends Filters
     }
 
     /**
-     * Filter the query according to most popular threads
+     * Filter the query according to most popular threads.
      *
      * @param  string $is_popular
      * @return mixed
@@ -36,7 +36,7 @@ class ThreadFilters extends Filters
     }
 
     /**
-     * Filter the query with threads with no replies
+     * Filter the query with threads with no replies.
      *
      * @param  string $is_unanswered
      * @return mixed
