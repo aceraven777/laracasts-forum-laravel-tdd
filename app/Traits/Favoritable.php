@@ -12,11 +12,11 @@ trait Favoritable
         static::deleting(function ($model) {
             $model->favorites->each->delete();
         });
-    }  
-    
+    }
+
     /**
-     * A reply can be favorited
-     * 
+     * A reply can be favorited.
+     *
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
     public function favorites()
@@ -25,8 +25,8 @@ trait Favoritable
     }
 
     /**
-     * Favorite the current reply
-     * 
+     * Favorite the current reply.
+     *
      * @return Model
      */
     public function favorite()
@@ -37,7 +37,7 @@ trait Favoritable
 
         if (! $favorite->exists()) {
             Reputation::award(auth()->user(), Reputation::REPLY_FAVORITED);
-            
+
             return $favorites->create($attributes);
         }
 
@@ -45,8 +45,8 @@ trait Favoritable
     }
 
     /**
-     * Unfavorite the reply
-     * 
+     * Unfavorite the reply.
+     *
      * @return Model
      */
     public function unfavorite()
@@ -64,7 +64,7 @@ trait Favoritable
 
     public function isFavorited()
     {
-        return !! $this->favorites
+        return (bool) $this->favorites
             ->where('user_id', auth()->id())
             ->count();
     }

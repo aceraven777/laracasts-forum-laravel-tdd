@@ -9,7 +9,7 @@ class Channel extends Model
     protected $guarded = [];
 
     /**
-     * Get route key name
+     * Get route key name.
      *
      * @return string
      */
@@ -19,7 +19,7 @@ class Channel extends Model
     }
 
     /**
-     * Get threads of channel
+     * Get threads of channel.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

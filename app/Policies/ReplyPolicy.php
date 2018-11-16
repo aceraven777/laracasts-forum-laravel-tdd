@@ -54,6 +54,5 @@ class ReplyPolicy
      */
     public function delete(User $user, Reply $reply)
     {
-        
     }
 }

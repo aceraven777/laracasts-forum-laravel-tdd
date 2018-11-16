@@ -13,7 +13,7 @@ class ThreadSubscriptionsController extends Controller
     }
 
     /**
-     * Subscribe user to a thread
+     * Subscribe user to a thread.
      *
      * @param  string                   $channel
      * @param  Thread                   $thread
@@ -26,7 +26,7 @@ class ThreadSubscriptionsController extends Controller
     }
 
     /**
-     * Unsubscribe user to a thread
+     * Unsubscribe user to a thread.
      *
      * @param  string                   $channel
      * @param  Thread                   $thread

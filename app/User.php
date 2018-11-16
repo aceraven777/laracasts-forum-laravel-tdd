@@ -47,7 +47,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Threads posted by user
+     * Threads posted by user.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
@@ -57,7 +57,7 @@ class User extends Authenticatable
     }
 
     /**
-     * User activities
+     * User activities.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
@@ -67,7 +67,7 @@ class User extends Authenticatable
     }
 
     /**
-     * User last reply
+     * User last reply.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
@@ -77,17 +77,17 @@ class User extends Authenticatable
     }
 
     /**
-     * Get cache key for the thread
+     * Get cache key for the thread.
      *
      * @param Thread $thread
      */
     public function visitedThreadCacheKey($thread)
     {
-        return sprintf("users.%s.visits.%s", $this->id, $thread->id);
+        return sprintf('users.%s.visits.%s', $this->id, $thread->id);
     }
 
     /**
-     * Mark thread as read
+     * Mark thread as read.
      *
      * @param Thread $thread
      */
@@ -98,7 +98,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Confirm the user
+     * Confirm the user.
      */
     public function confirm()
     {
@@ -108,9 +108,9 @@ class User extends Authenticatable
     }
 
     /**
-     * Determine if the user is an administrator
+     * Determine if the user is an administrator.
      *
-     * @return boolean
+     * @return bool
      */
     public function isAdmin()
     {
@@ -128,7 +128,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Accessor for avatar_path
+     * Accessor for avatar_path.
      *
      * @param [type] $avatar
      * @return void
@@ -139,7 +139,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Get confirmation token of user
+     * Get confirmation token of user.
      *
      * @param string $email
      * @return string
@@ -147,10 +147,10 @@ class User extends Authenticatable
     public static function generateConfirmationToken($email)
     {
         do {
-            $token = str_limit(md5($email . str_random()), 25, '');
+            $token = str_limit(md5($email.str_random()), 25, '');
 
             $exists = self::where('confirmation_token', $token)->exists();
-        } while($exists);
+        } while ($exists);
 
         return $token;
     }

@@ -1,9 +1,9 @@
 <?php
 
+use App\Thread;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
-use App\Thread;
 
 class AddSlugToThreadsTable extends Migration
 {
@@ -18,7 +18,7 @@ class AddSlugToThreadsTable extends Migration
             $table->string('slug')->after('id');
         });
 
-        Thread::chunk(100, function($threads) {
+        Thread::chunk(100, function ($threads) {
             foreach ($threads as $thread) {
                 $thread->slug = Thread::generateUniqueSlug($thread->title);
                 $thread->save();

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Thread;
 use App\Channel;
 use App\Trending;
-use Carbon\Carbon;
 use App\Rules\Recaptcha;
 use Illuminate\Http\Request;
 use App\Filters\ThreadFilters;
@@ -99,7 +98,7 @@ class ThreadsController extends Controller
         }
 
         $trending->push($thread);
-        
+
         $thread->increment('visits');
 
         return view('threads.show', compact('thread'));
@@ -115,7 +114,7 @@ class ThreadsController extends Controller
     public function update(Request $request, $channel, Thread $thread)
     {
         $this->authorize('update', $thread);
-        
+
         $data = $request->validate([
             'title' => 'required|spamfree',
             'body' => 'required|spamfree',
@@ -147,7 +146,7 @@ class ThreadsController extends Controller
     }
 
     /**
-     * Get threads
+     * Get threads.
      *
      * @param  \App\Channel               $channel
      * @param  \App\Filters\ThreadFilters $filters

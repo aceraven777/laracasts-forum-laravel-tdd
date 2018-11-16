@@ -18,7 +18,7 @@ class Reply extends Model
     protected $appends = ['favoritesCount', 'isFavorited', 'isBest'];
 
     /**
-     * Boot function
+     * Boot function.
      */
     protected static function boot()
     {
@@ -35,10 +35,10 @@ class Reply extends Model
 
             Reputation::reduce($reply->owner, Reputation::REPLY_POSTED);
         });
-    }   
+    }
 
     /**
-     * Owner of the reply
+     * Owner of the reply.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -48,7 +48,7 @@ class Reply extends Model
     }
 
     /**
-     * Thread of the reply
+     * Thread of the reply.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -58,19 +58,19 @@ class Reply extends Model
     }
 
     /**
-     * Path of reply
+     * Path of reply.
      *
      * @return string
      */
     public function path()
     {
-        return $this->thread->path() . "#reply-{$this->id}";
+        return $this->thread->path()."#reply-{$this->id}";
     }
 
     /**
-     * Is reply was just published
+     * Is reply was just published.
      *
-     * @return boolean
+     * @return bool
      */
     public function wasJustPublished()
     {
@@ -78,9 +78,9 @@ class Reply extends Model
     }
 
     /**
-     * Get all mentioned users in the body
+     * Get all mentioned users in the body.
      *
-     * @param boolean $body
+     * @param bool $body
      * @return array
      */
     public function mentionedUsers($body = false)
@@ -91,9 +91,9 @@ class Reply extends Model
     }
 
     /**
-     * If reply is best reply
+     * If reply is best reply.
      *
-     * @return boolean
+     * @return bool
      */
     public function isBest()
     {
@@ -101,9 +101,9 @@ class Reply extends Model
     }
 
     /**
-     * If reply is the best reply in thread
+     * If reply is the best reply in thread.
      *
-     * @return boolean
+     * @return bool
      */
     public function getIsBestAttribute()
     {
@@ -111,7 +111,7 @@ class Reply extends Model
     }
 
     /**
-     * Sanitize body attribute
+     * Sanitize body attribute.
      *
      * @param string $body
      * @return string
