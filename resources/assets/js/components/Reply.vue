@@ -25,7 +25,9 @@
 					<button class="btn btns-xs btn-link" @click="editing = false" type="button">Cancel</button>
 				</form>
 			</div>
-			<div ref="reply-body" v-else v-html="body"></div>
+			<div ref="body" v-else>
+				<highlight :content="body"></highlight>
+			</div>
 		</div>
 		
 		<div class="panel-footer level" v-if="authorize('owns', reply) || authorize('owns', reply.thread)">
@@ -41,12 +43,13 @@
 
 <script>
     import Favorite from './Favorite.vue';
+    import Highlight from './Highlight.vue';
 	import moment from 'moment';
 
     export default {
         props: ['reply'],
 
-        components: { Favorite },
+        components: { Favorite, Highlight },
 
         data() {
             return {
@@ -70,40 +73,28 @@
 		},
 
 		updated() {
-			if (this.editing) {
-				var component = this;
+			if (! this.editing) return;
 
-				$('#reply-' + this.id + ' form textarea').atwho({
-					at: "@",
-					delay: 750,
-					callbacks: {
-						remoteFilter: function(query, callback) {
-							if (! query) {
-								return;
-							}
+			var component = this;
 
-							$.getJSON("/api/users", {name: query}, function(usernames) {
-								callback(usernames);
-							});
+			$('#reply-' + this.id + ' form textarea').atwho({
+				at: "@",
+				delay: 750,
+				callbacks: {
+					remoteFilter: function(query, callback) {
+						if (! query) {
+							return;
 						}
-					}
-				})
-				.on('inserted.atwho', function (event, flag, query) {
-					component.body = $(this).val();
-				});
-			}
-		},
-		
-		mounted() {
-			this.highlight(this.$refs['reply-body']);
-		},
 
-		watch: {
-			editing() {
-				if (! this.editing) {
-					setTimeout(() => this.highlight(this.$refs['reply-body']), 50)
+						$.getJSON("/api/users", {name: query}, function(usernames) {
+							callback(usernames);
+						});
+					}
 				}
-			}
+			})
+			.on('inserted.atwho', function (event, flag, query) {
+				component.body = $(this).val();
+			});
 		},
 
         methods: {
