@@ -30,40 +30,33 @@ class PinThreadsTest extends TestCase
 
         $this->delete(route('pinned-threads.destroy', $thread));
 
-        $this->assertFalse($thread->fresh()->pinned, 'Failed asserting that the thread was unlocked.');
+        $this->assertFalse($thread->fresh()->pinned, 'Failed asserting that the thread was unpinned.');
     }
 
     /** @test */
     public function pinned_threads_are_listed_first()
     {
-        $channel = create(Channel::class, [
-            'name' => 'PHP',
-            'slug' => 'php'
-        ]);
+        $threads = create(Thread::class, [], 3);
 
-        $thread1 = create(Thread::class, ['channel_id' => $channel->id]);
-        $thread2 = create(Thread::class, ['channel_id' => $channel->id]);
-        $threadToPin = create(Thread::class, ['channel_id' => $channel->id]);
+        $threadToPin = $threads[2];
 
         $this->signInAdmin();
 
-        $response = $this->getJson(route('threads'));
-        $response->assertJson([
+        $response = $this->getJson(route('threads'))->assertJson([
             'data' => [
-                ['id' => $thread1->id],
-                ['id' => $thread2->id],
+                ['id' => $threads[0]->id],
+                ['id' => $threads[1]->id],
                 ['id' => $threadToPin->id],
             ]
         ]);
 
         $this->post(route('pinned-threads.store', $threadToPin));
 
-        $response = $this->getJson(route('threads'));
-        $response->assertJson([
+        $response = $this->getJson(route('threads'))->assertJson([
             'data' => [
                 ['id' => $threadToPin->id],
-                ['id' => $thread1->id],
-                ['id' => $thread2->id],
+                ['id' => $threads[0]->id],
+                ['id' => $threads[1]->id],
             ]
         ]);
 
