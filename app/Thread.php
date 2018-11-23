@@ -11,7 +11,7 @@ class Thread extends Model
 {
     use RecordsActivity, Searchable;
 
-    protected $fillable = ['user_id', 'channel_id', 'title', 'body'];
+    protected $fillable = ['user_id', 'channel_id', 'title', 'body', 'pinned'];
 
     protected $with = ['creator', 'channel'];
 
@@ -19,6 +19,7 @@ class Thread extends Model
 
     protected $casts = [
         'locked' => 'boolean',
+        'pinned' => 'boolean',
     ];
 
     /**
