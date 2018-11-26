@@ -11,15 +11,19 @@
                 <th>Slug</th>
                 <th>Description</th>
                 <th>Threads</th>
+                <th>Actions</th>
             </tr>
             </thead>
             <tbody>
             @forelse($channels as $channel)
                 <tr>
-                    <td>{{$channel->name}}</td>
-                    <td>{{$channel->slug}}</td>
-                    <td>{{$channel->description}}</td>
+                    <td>{{ $channel->name }}</td>
+                    <td>{{ $channel->slug }}</td>
+                    <td>{{ $channel->description }}</td>
                     <td>{{ $channel->threads()->count() }}</td>
+                    <td>
+                        <a href="{{ route('admin.channels.edit', ['channel' => $channel->slug]) }}" class="btn btn-default btn-xs">Edit</a>
+                    </td>
                 </tr>
             @empty
                 <tr>
