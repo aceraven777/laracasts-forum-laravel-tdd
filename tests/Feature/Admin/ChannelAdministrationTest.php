@@ -63,7 +63,7 @@ class ChannelAdministrationTest extends TestCase
         $updated_data = [
             'name' => 'altered',
             'description' => 'altered channel description'
-        ];
+        ] + $channel->toArray();
 
         $this->patch(
             route('admin.channels.update', ['channel' => $channel->slug]), 
@@ -73,6 +73,27 @@ class ChannelAdministrationTest extends TestCase
         $this->get(route('admin.channels.index'))
             ->assertSee($updated_data['name'])
             ->assertSee($updated_data['description']);
+    }
+
+    /** @test */
+    public function an_administrator_can_mark_an_existing_channel_as_archive()
+    {
+        $this->signInAdmin();
+
+        $channel = create('App\Channel');
+
+        $this->assertFalse($channel->archived);
+
+        $updated_data = [
+            'archived' => true
+        ] + $channel->toArray();
+
+        $this->patch(
+            route('admin.channels.update', ['channel' => $channel->slug]),
+            $updated_data
+        );
+
+        $this->assertTrue($channel->fresh()->archived);
     }
 
     /** @test */

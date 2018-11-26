@@ -8,6 +8,10 @@ class Channel extends Model
 {
     protected $guarded = [];
 
+    protected $casts = [
+        'archived' => 'boolean',
+    ];
+
     /**
      * Get route key name.
      *
@@ -26,5 +30,30 @@ class Channel extends Model
     public function threads()
     {
         return $this->hasMany('App\Thread');
+    }
+
+    /**
+     * Setter for name attribute
+     * Also set the slug of channel
+     *
+     * @param string $name
+     */
+    public function setNameAttribute($name)
+    {
+        $this->attributes['name'] = $name;
+        $this->attributes['slug'] = str_slug($name);
+    }
+
+    /**
+     * Archive channel
+     *
+     * @return Channel
+     */
+    public function archive()
+    {
+        $this->archived = true;
+        $this->save();
+
+        return $this;
     }
 }

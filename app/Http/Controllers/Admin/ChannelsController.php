@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Channel;
+use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
 
@@ -25,7 +26,7 @@ class ChannelsController extends Controller
             'description' => 'required',
         ]);
 
-        $channel = Channel::create($data + ['slug' => str_slug($data['name'])]);
+        $channel = Channel::create($data);
 
         Cache::forget('channels');
 
@@ -56,8 +57,12 @@ class ChannelsController extends Controller
     {
         $channel->update(
             request()->validate([
-                'name' => 'required|unique:channels',
+                'name' => [
+                    'required',
+                    Rule::unique('channels')->ignore($channel->id),
+                ],
                 'description' => 'required',
+                'archived' => 'required|boolean',
             ])
         );
 
