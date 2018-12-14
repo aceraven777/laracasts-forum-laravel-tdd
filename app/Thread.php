@@ -11,12 +11,25 @@ class Thread extends Model
 {
     use RecordsActivity, Searchable;
 
+    /**
+     * Mass assignment protection.
+     *
+     * @var array
+     */
     protected $fillable = ['user_id', 'channel_id', 'title', 'body', 'pinned'];
 
+    /**
+     * The relationships to always eager-load.
+     *
+     * @var array
+     */
     protected $with = ['creator', 'channel'];
 
-    protected $appends = ['isSubscribedTo'];
-
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
     protected $casts = [
         'locked' => 'boolean',
         'pinned' => 'boolean',
