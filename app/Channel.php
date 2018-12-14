@@ -12,6 +12,16 @@ class Channel extends Model
         'archived' => 'boolean',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope('active', function ($builder) {
+            $builder->where('archived', false)
+                ->where('name', 'asc');
+        });
+    }
+
     /**
      * Get route key name.
      *

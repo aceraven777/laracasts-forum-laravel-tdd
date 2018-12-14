@@ -76,7 +76,7 @@ class ChannelAdministrationTest extends TestCase
     }
 
     /** @test */
-    public function an_administrator_can_mark_an_existing_channel_as_archive()
+    public function an_administrator_can_mark_an_existing_channel_as_archived()
     {
         $this->signInAdmin();
 
@@ -94,6 +94,20 @@ class ChannelAdministrationTest extends TestCase
         );
 
         $this->assertTrue($channel->fresh()->archived);
+    }
+    
+    /** @test */
+    public function archive_channel_should_not_influence_existing_thread()
+    {
+        $this->signInAdmin();
+        $channel = create('App\Channel');
+        $thread = create('App\Thread', ['channel_id' => $channel->id]);
+        $path = $thread->path();
+
+        $channel->archived = true;
+        $channel->save();
+
+        $this->assertEquals($path, $thread->fresh()->path());
     }
 
     /** @test */
