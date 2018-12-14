@@ -18,7 +18,7 @@ class Channel extends Model
 
         static::addGlobalScope('active', function ($builder) {
             $builder->where('archived', false)
-                ->where('name', 'asc');
+                ->orderBy('name', 'asc');
         });
     }
 
