@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="new-reply">
         <div v-if="signedIn">
             <div class="form-group">
                 <wysiwyg v-model="body" name="body" placeholder="Have something to say?" :shouldClear="completed" ref="trix"></wysiwyg>
@@ -84,3 +84,11 @@
         },
     }
 </script>
+
+<style scoped>
+    .new-reply {
+        padding: 15px;
+        background-color: #fff;
+        border: 1px solid #e3e3e3;
+    }
+</style>
