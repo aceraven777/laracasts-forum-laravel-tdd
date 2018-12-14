@@ -11,7 +11,9 @@ class ChannelsController extends Controller
 {
     public function index()
     {
-        return view('admin.channels.index')->with('channels', Channel::with('threads')->get());
+        $channels = Channel::withoutGlobalScopes()->orderBy('name', 'asc')->withCount('threads')->get();
+        
+        return view('admin.channels.index', compact('channels'));
     }
 
     public function create()
