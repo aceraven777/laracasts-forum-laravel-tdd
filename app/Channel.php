@@ -44,7 +44,7 @@ class Channel extends Model
 
     /**
      * Setter for name attribute
-     * Also set the slug of channel
+     * Also set the slug of channel.
      *
      * @param string $name
      */
@@ -55,7 +55,7 @@ class Channel extends Model
     }
 
     /**
-     * Archive channel
+     * Archive channel.
      *
      * @return Channel
      */
