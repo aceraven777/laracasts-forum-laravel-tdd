@@ -56,6 +56,7 @@ class YouWereMentioned extends Notification
     {
         return [
             'message' => $this->reply->owner->name.' replied to '.$this->reply->thread->title,
+            'notifier' => $this->user(),
             'link' => $this->reply->path(),
         ];
     }

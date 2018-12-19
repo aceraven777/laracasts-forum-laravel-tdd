@@ -2,8 +2,7 @@
 
 namespace App\Providers;
 
-use View;
-use Cache;
+use App\Trending;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
@@ -14,7 +13,7 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(Trending $trending)
     {
         Schema::defaultStringLength(191);
 

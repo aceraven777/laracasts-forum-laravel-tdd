@@ -1,94 +1,82 @@
 <template>
-    <div class="new-reply">
-        <div v-if="signedIn">
-            <div class="form-group">
-                <wysiwyg v-model="body" name="body" placeholder="Have something to say?" :shouldClear="completed" ref="trix"></wysiwyg>
+    <div class="py-6 ml-10">
+        <div v-if="! signedIn">
+            <p class="text-center text-sm text-grey-dark">
+                Please <a href="/login" @click.prevent="$modal.show('login')" class="text-blue link">sign in</a> to participate in this
+                discussion.
+            </p>
+        </div>
+
+        <div v-else-if="! confirmed">
+            To participate in this thread, please check your email and confirm your account.
+        </div>
+
+        <div v-else>
+            <div class="mb-3">
+                <wysiwyg name="body" v-model="body" placeholder="Have something to say?"></wysiwyg>
             </div>
 
             <button type="submit"
-                class="btn btn-primary"
-                @click="addReply">Post</button>
+                    class="btn is-green"
+                    @click="addReply">Post</button>
         </div>
-        <p v-else class="text-center">Please <a href="/login">sign in</a> to participate in this discussion.</p>
     </div>
 </template>
 
 <script>
-    import 'jquery.caret';
-    import 'at.js';
-    import Tribute from "tributejs";
+import "jquery.caret";
+import "at.js";
 
-    export default {
-        data() {
-            return {
-                body: '',
-                completed: false,
-            };
-        },
+export default {
+    data() {
+        return {
+            body: ""
+        };
+    },
 
-        mounted() {
-            let component = this;
-            let tribute;
+    computed: {
+        confirmed() {
+            return window.App.user.confirmed;
+        }
+    },
 
-            this.$refs.trix.$on('trix-initialize', (e) => {
-                tribute = new Tribute({
-                    menuItemTemplate: function (item) {
-                        return item.string;
-                    },
-                    lookup: 'name',
-                    fillAttr: 'name',
-                    values: function (query, callback) {
-                        if (! query) {
-                            return;
-                        }
+    mounted() {
+        $("#body").atwho({
+            at: "@",
+            delay: 750,
+            callbacks: {
+                remoteFilter: function(query, callback) {
+                    $.getJSON("/api/users", { name: query }, function(
+                        usernames
+                    ) {
+                        callback(usernames);
+                    });
+                }
+            }
+        });
+    },
 
-                        $.getJSON("/api/users", {name: query}, function(users) {
-                            callback(users);
-                        });
-                    },
-                    selectTemplate: function (item) {
-                        return '<span contenteditable="false"><a href="/profiles/' + item.original.name + '" >@' + item.original.name + '</a></span>';
-                    }
-                });
-
-                this.$refs.trix.$on('keydown', (e) => {
-                    // If user has pressed space
-                    if (e.keyCode == 32) {
-                        tribute.hideMenu();
-                    }
-                });
-
-                tribute.attach(this.$refs.trix.$refs.trix);
-            });
-        },
-
-        methods: {
-            addReply() {
-                this.completed = false;
-
-                axios.post(location.pathname + '/replies', {
-                    body: this.body,
+    methods: {
+        addReply() {
+            axios
+                .post(location.pathname + "/replies", { body: this.body })
+                .catch(error => {
+                    flash(error.response.data, "danger");
                 })
-                .catch((error) => {
-                    flash(error.response.data, 'danger');
-                })
-                .then(({data}) => {
-                    this.body = '';
-                    this.completed = true;
+                .then(({ data }) => {
+                    this.body = "";
 
-                    flash('Your reply has been posted.');
+                    flash("Your reply has been posted.");
 
-                    this.$emit('created', data);
+                    this.$emit("created", data);
                 });
-            },
-        },
+        }
     }
+};
 </script>
 
 <style scoped>
-    .new-reply {
-        padding: 15px;
-        background-color: #fff;
-        border: 1px solid #e3e3e3;
-    }
+.new-reply {
+    background-color: #fff;
+}
 </style>

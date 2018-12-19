@@ -65,6 +65,7 @@ $factory->define(App\Channel::class, function (Faker\Generator $faker) {
         'slug' => str_slug($name),
         'description' => $faker->sentence,
         'archived' => false,
+        'color' => $faker->hexcolor,
     ];
 });
 

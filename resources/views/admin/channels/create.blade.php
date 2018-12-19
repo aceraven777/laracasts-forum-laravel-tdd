@@ -1,4 +1,4 @@
-@extends('admin.layouts.app')
+@extends('admin.layout.app')
 
 @section('administration-content')
     <form method="POST" action="{{ route('admin.channels.store') }}">
