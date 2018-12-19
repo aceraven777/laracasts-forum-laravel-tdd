@@ -4,6 +4,7 @@ namespace App;
 
 use Laravel\Scout\Searchable;
 use App\Traits\RecordsActivity;
+use App\Events\ThreadWasPublished;
 use App\Events\ThreadReceivedNewReply;
 use Illuminate\Database\Eloquent\Model;
 
@@ -45,13 +46,15 @@ class Thread extends Model
         static::creating(function ($thread) {
             $thread->slug = static::generateUniqueSlug($thread->title);
 
-            Reputation::award($thread->creator, Reputation::THREAD_WAS_PUBLISHED);
+            event(new ThreadWasPublished($thread));
+
+            $thread->creator->gainReputation('thread_published');
         });
 
         static::deleting(function ($thread) {
             $thread->replies->each->delete();
 
-            Reputation::reduce($thread->creator, Reputation::THREAD_WAS_PUBLISHED);
+            $thread->creator->loseReputation('thread_published');
         });
     }
 

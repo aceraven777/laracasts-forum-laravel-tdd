@@ -58,6 +58,14 @@ class Reply extends Model
     }
 
     /**
+     * Get the related title for the reply.
+     */
+    public function title()
+    {
+        return $this->thread->title;
+    }
+
+    /**
      * Path of reply.
      *
      * @return string
