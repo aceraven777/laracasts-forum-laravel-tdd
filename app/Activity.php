@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Activity extends Model
 {
     /**
-     * Mass assignable fields
+     * Mass assignable fields.
      *
      * @var array
      */

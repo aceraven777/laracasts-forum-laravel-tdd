@@ -19,7 +19,7 @@ class AddUsernameToUsersTable extends Migration
             $table->dropUnique('users_name_unique');
         });
 
-        DB::statement("UPDATE `users` SET `username` = `name`;");
+        DB::statement('UPDATE `users` SET `username` = `name`;');
 
         Schema::table('users', function (Blueprint $table) {
             $table->unique('username');
