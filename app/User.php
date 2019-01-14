@@ -57,13 +57,13 @@ class User extends Authenticatable
     }
 
     /**
-     * User activities.
+     * Get all activity for the user.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function activities()
+    public function activity()
     {
-        return $this->hasMany(Activity::class)->latest();
+        return $this->hasMany(Activity::class);
     }
 
     /**

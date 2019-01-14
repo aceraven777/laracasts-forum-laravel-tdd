@@ -3,67 +3,79 @@
 namespace Tests\Unit;
 
 use App\Reply;
+use Carbon\Carbon;
 use Tests\TestCase;
 
 class ReplyTest extends TestCase
 {
     /** @test */
-    public function it_has_an_owner()
+    function it_has_an_owner()
     {
-        $reply = create('App\Reply');
+        $reply = create(\App\Reply::class);
 
-        $this->assertInstanceOf('App\User', $reply->owner);
+        $this->assertInstanceOf(\App\User::class, $reply->owner);
     }
 
     /** @test */
-    public function it_has_a_thread()
+    function it_knows_if_it_was_just_published()
     {
-        $reply = create('App\Reply');
-
-        $this->assertInstanceOf('App\Thread', $reply->thread);
-    }
-
-    /** @test */
-    public function it_knows_if_it_was_just_published()
-    {
-        $reply = create('App\Reply');
+        $reply = create(\App\Reply::class);
 
         $this->assertTrue($reply->wasJustPublished());
 
-        $reply->created_at = $reply->created_at->subMonth();
-        $reply->save();
+        $reply->created_at = Carbon::now()->subMonth();
 
         $this->assertFalse($reply->wasJustPublished());
     }
 
     /** @test */
-    public function it_can_detect_all_mentioned_users_in_the_body()
+    function it_wraps_mentioned_usernames_in_the_body_within_anchor_tags()
     {
         $reply = new Reply([
-            'body' => '@JaneDoe wants to talk to @JohnDoe'
+            'body' => 'Hello @Jane-Doe.'
         ]);
 
-        $this->assertEquals(['JaneDoe', 'JohnDoe'], $reply->mentionedUsers());
+        $this->assertEquals(
+            'Hello <a href="/profiles/Jane-Doe">@Jane-Doe</a>.',
+            $reply->body
+        );
     }
 
     /** @test */
-    public function it_knows_if_it_is_the_best_reply()
+    function it_knows_if_it_is_the_best_reply()
     {
-        $reply = create('App\Reply');
+        $reply = create(\App\Reply::class);
 
         $this->assertFalse($reply->isBest());
 
-        $reply->thread->best_reply_id = $reply->id;
-        $reply->thread->save();
+        $reply->thread->update(['best_reply_id' => $reply->id]);
 
-        $this->assertTrue($reply->isBest());
+        $this->assertTrue($reply->fresh()->isBest());
     }
 
     /** @test */
-    public function a_reply_body_is_sanitized_automatically()
+    function a_reply_body_is_sanitized_automatically()
     {
-        $reply = make('App\Reply', ['body' => '<script>alert("bad");</script><p>This is okay.</p>']);
+        $reply = make(\App\Reply::class, ['body' => '<script>alert("bad")</script><p>This is okay.</p>']);
 
         $this->assertEquals("<p>This is okay.</p>", $reply->body);
+    }
+
+    /** @test */
+    function a_reply_knows_the_total_xp_earned()
+    {
+        $this->signIn();
+
+        $reply = create('App\Reply'); // 2 points for creating the reply.
+
+        $this->assertEquals(2, $reply->xp);
+
+        $reply->thread->markBestReply($reply); // 50 points for best.
+
+        $this->assertEquals(52, $reply->xp);
+
+        $this->post(route('replies.favorite', $reply)); // 5 points for favoriting.
+
+        $this->assertEquals(57, $reply->xp);
     }
 }

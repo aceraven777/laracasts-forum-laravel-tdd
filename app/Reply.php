@@ -13,36 +13,46 @@ class Reply extends Model
 
     protected $fillable = ['user_id', 'body'];
 
+    /**
+     * The relations to eager load on every query.
+     *
+     * @var array
+     */
     protected $with = ['owner', 'favorites'];
 
-    protected $appends = ['favoritesCount', 'isFavorited', 'isBest', 'xp'];
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['favoritesCount', 'isFavorited', 'isBest', 'xp', 'path'];
 
     /**
-     * Boot function.
+     * Boot the reply instance.
      */
     protected static function boot()
     {
         parent::boot();
 
-        static::creating(function ($reply) {
+        static::created(function ($reply) {
             $reply->thread->increment('replies_count');
 
-            Reputation::award($reply->owner, Reputation::REPLY_POSTED);
+            $reply->owner->gainReputation('reply_posted');
         });
 
-        static::deleting(function ($reply) {
+        static::deleted(function ($reply) {
             $reply->thread->decrement('replies_count');
 
-            Reputation::reduce($reply->owner, Reputation::REPLY_POSTED);
+            $reply->owner->loseReputation('reply_posted');
 
             if ($reply->isBest()) {
-                $reply->thread->unsetBestReply();
+                $reply->owner->loseReputation('best_reply_awarded');
             }
         });
     }
 
     /**
-     * Owner of the reply.
+     * A reply has an owner.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -52,13 +62,13 @@ class Reply extends Model
     }
 
     /**
-     * Thread of the reply.
+     * A reply belongs to a thread.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function thread()
     {
-        return $this->belongsTo(Thread::class, 'thread_id');
+        return $this->belongsTo(Thread::class);
     }
 
     /**
@@ -70,7 +80,17 @@ class Reply extends Model
     }
 
     /**
-     * Path of reply.
+     * Determine if the reply was just published a moment ago.
+     *
+     * @return bool
+     */
+    public function wasJustPublished()
+    {
+        return $this->created_at->gt(Carbon::now()->subMinute());
+    }
+
+    /**
+     * Determine the path to the reply.
      *
      * @return string
      */
@@ -80,30 +100,40 @@ class Reply extends Model
     }
 
     /**
-     * Is reply was just published.
-     *
-     * @return bool
+     * Fetch the path to the thread as a property.
      */
-    public function wasJustPublished()
+    public function getPathAttribute()
     {
-        return $this->created_at->addMinute() > Carbon::now();
+        return $this->path();
     }
 
     /**
-     * Get all mentioned users in the body.
+     * Access the body attribute.
      *
-     * @param bool $body
-     * @return array
+     * @param  string $body
+     * @return string
      */
-    public function mentionedUsers($body = false)
+    public function getBodyAttribute($body)
     {
-        preg_match_all('/\@([\w\-]+)/', $body ?: $this->body, $matches);
-
-        return $matches[1];
+        return \Purify::clean($body);
     }
 
     /**
-     * If reply is best reply.
+     * Set the body attribute.
+     *
+     * @param string $body
+     */
+    public function setBodyAttribute($body)
+    {
+        $this->attributes['body'] = preg_replace(
+            '/@([\w\-]+)/',
+            '<a href="/profiles/$1">$0</a>',
+            $body
+        );
+    }
+
+    /**
+     * Determine if the current reply is marked as the best.
      *
      * @return bool
      */
@@ -113,7 +143,7 @@ class Reply extends Model
     }
 
     /**
-     * If reply is the best reply in thread.
+     * Determine if the current reply is marked as the best.
      *
      * @return bool
      */
@@ -122,22 +152,17 @@ class Reply extends Model
         return $this->isBest();
     }
 
+    /**
+     * Calculate the correct XP amount earned for the current reply.
+     */
     public function getXpAttribute()
     {
-        $xp = $this->isBest() ? config('council.reputation.best_reply_awarded') : 0;
-        $xp += config('council.reputation.reply_posted');
-        $xp += $this->favorites()->count() * config('council.reputation.reply_favorited');
-        return $xp;
-    }
+        $xp = config('council.reputation.reply_posted');
 
-    /**
-     * Sanitize body attribute.
-     *
-     * @param string $body
-     * @return string
-     */
-    public function getBodyAttribute($body)
-    {
-        return \Purify::clean($body);
+        if ($this->isBest()) {
+            $xp += config('council.reputation.best_reply_awarded');
+        }
+
+        return $xp += $this->favorites()->count() * config('council.reputation.reply_favorited');
     }
 }

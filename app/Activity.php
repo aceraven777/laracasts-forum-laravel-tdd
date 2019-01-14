@@ -13,23 +13,15 @@ class Activity extends Model
      */
     protected $fillable = ['subject_id', 'subject_type', 'user_id', 'type'];
 
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
     protected $appends = ['favoritedModel'];
 
-    public function getFavoritedModelAttribute()
-    {
-        $favoritedModel = null;
-        if ($this->subject_type === Favorite::class) {
-            $subject = $this->subject()->firstOrFail();
-            if ($subject->favorited_type == Reply::class) {
-                $favoritedModel = Reply::find($subject->favorited_id);
-            }
-        }
-
-        return $favoritedModel;
-    }
-
     /**
-     * Fet the associated subject for the activity.
+     * Fetch the associated subject for the activity.
      *
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
@@ -39,36 +31,34 @@ class Activity extends Model
     }
 
     /**
-     * Fetch an activity feed for the given user.
-     *
-     * @param  User $user
-     * @param  int  $take
-     * @return \Illuminate\Database\Eloquent\Collection;
+     * Fetch the model record for the subject of the favorite.
      */
-    public static function feed($user, $take = 50)
+    public function getFavoritedModelAttribute()
     {
-        return static::where('user_id', $user->id)
-            ->with('subject')
-            ->take($take)
-            ->orderBy('created_at', 'DESC')
-            ->get()
-            ->groupBy(function ($activity) {
-                return $activity->created_at->format('Y-m-d');
-            });
+        $favoritedModel = null;
+
+        if ($this->subject_type === Favorite::class) {
+            $subject = $this->subject()->firstOrFail();
+
+            if ($subject->favorited_type == Reply::class) {
+                $favoritedModel = Reply::find($subject->favorited_id);
+            }
+        }
+
+        return $favoritedModel;
     }
 
     /**
      * Fetch an activity feed for the given user.
      *
      * @param  User $user
-     * @param  int  $take
-     *
      * @return \Illuminate\Database\Eloquent\Collection;
      */
-    public static function paginatedFeed($user)
+    public static function feed($user)
     {
         return static::where('user_id', $user->id)
             ->latest()
-            ->with('subject');
+            ->with('subject')
+            ->paginate(30);
     }
 }

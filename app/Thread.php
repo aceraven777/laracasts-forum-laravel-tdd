@@ -3,10 +3,12 @@
 namespace App;
 
 use Laravel\Scout\Searchable;
+use App\Filters\ThreadFilters;
 use App\Traits\RecordsActivity;
 use App\Events\ThreadWasPublished;
 use App\Events\ThreadReceivedNewReply;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class Thread extends Model
 {
@@ -17,7 +19,7 @@ class Thread extends Model
      *
      * @var array
      */
-    protected $fillable = ['user_id', 'channel_id', 'title', 'body', 'pinned'];
+    protected $fillable = ['user_id', 'channel_id', 'title', 'slug', 'body', 'pinned', 'best_reply_id'];
 
     /**
      * The relationships to always eager-load.
@@ -27,107 +29,46 @@ class Thread extends Model
     protected $with = ['creator', 'channel'];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['path'];
+
+    /**
      * The attributes that should be cast to native types.
      *
      * @var array
      */
     protected $casts = [
         'locked' => 'boolean',
-        'pinned' => 'boolean',
+        'pinned' => 'boolean'
     ];
 
     /**
-     * Boot function.
+     * Boot the model.
      */
     protected static function boot()
     {
         parent::boot();
-
-        static::creating(function ($thread) {
-            $thread->slug = static::generateUniqueSlug($thread->title);
-
-            event(new ThreadWasPublished($thread));
-
-            $thread->creator->gainReputation('thread_published');
-        });
 
         static::deleting(function ($thread) {
             $thread->replies->each->delete();
 
             $thread->creator->loseReputation('thread_published');
         });
+
+        static::created(function ($thread) {
+            $thread->update(['slug' => $thread->title]);
+
+            event(new ThreadWasPublished($thread));
+
+            $thread->creator->gainReputation('thread_published');
+        });
     }
 
     /**
-     * Generate unique slug of the thread.
-     *
-     * @param string $title
-     * @return string
-     */
-    public static function generateUniqueSlug($title)
-    {
-        $original_slug = str_slug($title);
-        $slug = $original_slug;
-
-        $exists = static::where('slug', $slug)->exists();
-
-        // If there are no duplicates
-        if (! $exists) {
-            return $slug;
-        }
-
-        // Get how many duplicates
-        $max_count = static::where('title', $title)->count();
-
-        // Check for duplicates from $max_count+1 to 2
-        $i = $max_count + 1;
-        do {
-            $slug = $original_slug.'-'.$i;
-
-            $exists = static::where('slug', $slug)->exists();
-            $i--;
-        } while ($exists && $i > 1);
-
-        if (! $exists) {
-            return $slug;
-        }
-
-        // Check for duplicates from $max_count+2 to infinity
-        $i = $max_count + 2;
-        do {
-            $slug = $original_slug.'-'.$i;
-
-            $exists = static::where('slug', $slug)->exists();
-            $i++;
-        } while ($exists);
-
-        return $slug;
-    }
-
-    /**
-     * Route key name.
-     *
-     * @return string
-     */
-    public function getRouteKeyName()
-    {
-        return 'slug';
-    }
-
-    /**
-     * Accessor for is_subscribed_to.
-     *
-     * @return bool
-     */
-    public function getIsSubscribedToAttribute()
-    {
-        return $this->subscriptions()
-            ->where('user_id', auth()->id())
-            ->exists();
-    }
-
-    /**
-     * Thread URI path.
+     * Get a string path for the thread.
      *
      * @return string
      */
@@ -137,7 +78,47 @@ class Thread extends Model
     }
 
     /**
-     * Replies to the thread.
+     * Fetch the path to the thread as a property.
+     */
+    public function getPathAttribute()
+    {
+        if (! $this->channel) {
+            return '';
+        }
+
+        return $this->path();
+    }
+
+    /**
+     * A thread belongs to a creator.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Get the title for the thread.
+     */
+    public function title()
+    {
+        return $this->title;
+    }
+
+    /**
+     * A thread is assigned a channel.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function channel()
+    {
+        return $this->belongsTo(Channel::class)->withoutGlobalScope('active');
+    }
+
+    /**
+     * A thread may have many replies.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
@@ -157,43 +138,11 @@ class Thread extends Model
     }
 
     /**
-     * Creator of the thread.
+     * Add a reply to the thread.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @param  array $reply
+     * @return Model
      */
-    public function creator()
-    {
-        return $this->belongsTo(User::class, 'user_id');
-    }
-    
-    /**
-     * Get the title for the thread.
-     */
-    public function title()
-    {
-        return $this->title;
-    }
-
-    /**
-     * Channel of the thread it belongs to.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function channel()
-    {
-        return $this->belongsTo(Channel::class)->withoutGlobalScope('active');
-    }
-
-    /**
-     * Subscriptions to the thread.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function subscriptions()
-    {
-        return $this->hasMany(ThreadSubscription::class);
-    }
-
     public function addReply($reply)
     {
         $reply = $this->replies()->create($reply);
@@ -204,27 +153,13 @@ class Thread extends Model
     }
 
     /**
-     * Notify all subscribers of thread.
+     * Apply all relevant thread filters.
      *
-     * @param \App\Reply $reply
+     * @param  Builder       $query
+     * @param  ThreadFilters $filters
+     * @return Builder
      */
-    public function notifySubscribers($reply)
-    {
-        $this->subscriptions()
-            ->where('user_id', '!=', $reply->user_id)
-            ->get()
-            ->each
-            ->notify($reply);
-    }
-
-    /**
-     * Local scope filter for thread.
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param \App\Filters\ThreadFilters            $filters
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeFilter($query, $filters)
+    public function scopeFilter($query, ThreadFilters $filters)
     {
         return $filters->apply($query);
     }
@@ -232,24 +167,22 @@ class Thread extends Model
     /**
      * Subscribe a user to the current thread.
      *
-     * @param int|null $userId
+     * @param  int|null $userId
      * @return $this
      */
     public function subscribe($userId = null)
     {
-        $this->subscriptions()->create(
-            [
-                'user_id' => ($userId ?: auth()->id())
-            ]
-        );
+        $this->subscriptions()->create([
+            'user_id' => $userId ?: auth()->id()
+        ]);
 
         return $this;
     }
 
     /**
-     * Unsubscribe user to thread.
+     * Unsubscribe a user from the current thread.
      *
-     * @param int $userId
+     * @param int|null $userId
      */
     public function unsubscribe($userId = null)
     {
@@ -259,9 +192,35 @@ class Thread extends Model
     }
 
     /**
-     * Is user has updates in the thread.
+     * A thread can have many subscriptions.
      *
-     * @param \App\User $user
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function subscriptions()
+    {
+        return $this->hasMany(ThreadSubscription::class);
+    }
+
+    /**
+     * Determine if the current user is subscribed to the thread.
+     *
+     * @return bool
+     */
+    public function getIsSubscribedToAttribute()
+    {
+        if (! auth()->id()) {
+            return false;
+        }
+
+        return $this->subscriptions()
+            ->where('user_id', auth()->id())
+            ->exists();
+    }
+
+    /**
+     * Determine if the thread has been updated since the user last read it.
+     *
+     * @param  User $user
      * @return bool
      */
     public function hasUpdatesFor($user)
@@ -272,27 +231,54 @@ class Thread extends Model
     }
 
     /**
-     * Set best reply.
+     * Get the route key name.
+     *
+     * @return string
+     */
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
+    /**
+     * Access the body attribute.
+     *
+     * @param  string $body
+     * @return string
+     */
+    public function getBodyAttribute($body)
+    {
+        return \Purify::clean($body);
+    }
+
+    /**
+     * Set the proper slug attribute.
+     *
+     * @param string $value
+     */
+    public function setSlugAttribute($value)
+    {
+        if (static::whereSlug($slug = str_slug($value))->exists()) {
+            $slug = "{$slug}-{$this->id}";
+        }
+
+        $this->attributes['slug'] = $slug;
+    }
+
+    /**
+     * Mark the given reply as the best answer.
      *
      * @param Reply $reply
      */
     public function markBestReply(Reply $reply)
     {
-        $this->best_reply_id = $reply->id;
-        $this->save();
-
-        Reputation::award($reply->owner, Reputation::BEST_REPLY_AWARDED);
-    }
-
-    /**
-     * Unset best reply from thread.
-     */
-    public function unsetBestReply()
-    {
         if ($this->hasBestReply()) {
             $this->bestReply->owner->loseReputation('best_reply_awarded');
-            $this->update(['best_reply_id' => null]);
         }
+
+        $this->update(['best_reply_id' => $reply->id]);
+
+        $reply->owner->gainReputation('best_reply_awarded');
     }
 
     /**
@@ -313,16 +299,5 @@ class Thread extends Model
     public function toSearchableArray()
     {
         return $this->toArray() + ['path' => $this->path()];
-    }
-
-    /**
-     * Sanitize body attribute.
-     *
-     * @param string $body
-     * @return string
-     */
-    public function getBodyAttribute($body)
-    {
-        return \Purify::clean($body);
     }
 }
