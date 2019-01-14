@@ -165,6 +165,14 @@ class Thread extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+    
+    /**
+     * Get the title for the thread.
+     */
+    public function title()
+    {
+        return $this->title;
+    }
 
     /**
      * Channel of the thread it belongs to.

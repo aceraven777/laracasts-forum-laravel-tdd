@@ -9,11 +9,11 @@ use Illuminate\Support\Facades\Storage;
 class AddAvatarTest extends TestCase
 {
     /** @test */
-    public function on_members_can_add_avatars()
+    public function only_members_can_add_avatars()
     {
         $this->withExceptionHandling();
 
-        $this->json('POST', '/api/users/SomeUser/avatar')
+        $this->json('POST', 'api/users/1/avatar')
             ->assertStatus(401);
     }
 
@@ -22,7 +22,7 @@ class AddAvatarTest extends TestCase
     {
         $this->withExceptionHandling()->signIn();
 
-        $this->json('POST', '/api/users/' . auth()->user()->name . '/avatar', [
+        $this->json('POST', route('avatar', auth()->user()), [
             'avatar' => 'not-an-image'
         ])->assertStatus(422);
     }
@@ -34,12 +34,11 @@ class AddAvatarTest extends TestCase
 
         Storage::fake('public');
 
-        $file = UploadedFile::fake()->image('avatar.jpg');
-        $this->json('POST', '/api/users/' . auth()->user()->name . '/avatar', [
-            'avatar' => $file
+        $this->json('POST', route('avatar', auth()->user()), [
+            'avatar' => $file = UploadedFile::fake()->image('avatar.jpg')
         ]);
 
-        $this->assertEquals(asset('storage/avatars/' . $file->hashName()), auth()->user()->fresh()->avatar_path);
+        $this->assertEquals(asset('storage/avatars/'.$file->hashName()), auth()->user()->fresh()->avatar_path);
 
         Storage::disk('public')->assertExists('avatars/' . $file->hashName());
     }

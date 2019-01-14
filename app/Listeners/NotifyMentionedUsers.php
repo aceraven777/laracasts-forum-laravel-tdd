@@ -3,7 +3,6 @@
 namespace App\Listeners;
 
 use App\User;
-use App\Events\ThreadReceivedNewReply;
 use App\Notifications\YouWereMentioned;
 
 class NotifyMentionedUsers
@@ -11,18 +10,26 @@ class NotifyMentionedUsers
     /**
      * Handle the event.
      *
-     * @param  ThreadReceivedNewReply  $event
+     * @param  mixed $event
      * @return void
      */
-    public function handle(ThreadReceivedNewReply $event)
+    public function handle($event)
     {
-        $reply = $event->reply;
+        tap($event->subject(), function ($subject) {
+            User::whereIn('username', $this->mentionedUsers($subject))
+                ->get()->each->notify(new YouWereMentioned($subject));
+        });
+    }
 
-        $mentionedUsers = $reply->mentionedUsers();
-        $users = User::whereIn('name', $mentionedUsers)->get();
+    /**
+     * Fetch all mentioned users within the reply's body.
+     *
+     * @return array
+     */
+    public function mentionedUsers($body)
+    {
+        preg_match_all('/@([\w\-]+)/', $body, $matches);
 
-        foreach ($users as $user) {
-            $user->notify(new YouWereMentioned($reply));
-        }
+        return $matches[1];
     }
 }

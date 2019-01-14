@@ -14,7 +14,9 @@ class AddUsernameToUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
+            $table->string('name')->nullable()->change();
             $table->string('username')->after('name');
+            $table->dropUnique('users_name_unique');
         });
 
         DB::statement("UPDATE `users` SET `username` = `name`;");
@@ -32,7 +34,9 @@ class AddUsernameToUsersTable extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('color');
+            $table->string('name')->nullable(false)->change();
+            $table->dropColumn('username');
+            $table->unique('name');
         });
     }
 }

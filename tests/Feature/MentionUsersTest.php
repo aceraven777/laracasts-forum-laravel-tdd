@@ -2,40 +2,91 @@
 
 namespace Tests\Feature;
 
+use App\Thread;
+use App\Mentions;
 use Tests\TestCase;
+use App\Rules\Recaptcha;
+use Illuminate\Support\Facades\Notification;
 
 class MentionUsersTest extends TestCase
 {
+    public function setUp()
+    {
+        parent::setUp();
+
+        app()->singleton(Recaptcha::class, function () {
+            return \Mockery::mock(Recaptcha::class, function ($m) {
+                $m->shouldReceive('passes')->andReturn(true);
+            });
+        });
+    }
+
+    /** @test */
+    public function mentioned_users_in_a_thread_are_notified()
+    {
+        // Given we have a user, JohnDoe, who is signed in.
+        $john = create('App\User', ['username' => 'JohnDoe']);
+
+        $this->signIn($john);
+
+        // And we also have a user, JaneDoe.
+        $jane = create('App\User', ['username' => 'JaneDoe']);
+
+        // And JohnDoe create a new thread and mentions @JaneDoe.
+        $thread = make('App\Thread', [
+            'body' => 'Hey @JaneDoe check this out.'
+        ]);
+
+        $this->post(route('threads'), $thread->toArray() + ['g-recaptcha-response' => 'token']);
+
+        // Then @JaneDoe should receive a notification.
+        $this->assertCount(1, $jane->notifications);
+
+        $this->assertEquals(
+            "JohnDoe mentioned you in \"{$thread->title}\"",
+            $jane->notifications->first()->data['message']
+        );
+    }
+
     /** @test */
     public function mentioned_users_in_a_reply_are_notified()
     {
-        $john = create('App\User', ['name' => 'JohnDoe']);
+        // Given we have a user, JohnDoe, who is signed in.
+        $john = create('App\User', ['username' => 'JohnDoe']);
+
         $this->signIn($john);
 
-        $jane = create('App\User', ['name' => 'JaneDoe']);
-        
+        // And we also have a user, JaneDoe.
+        $jane = create('App\User', ['username' => 'JaneDoe']);
+
+        // If we have a thread
         $thread = create('App\Thread');
 
+        // And JohnDoe replies to that thread and mentions @JaneDoe.
         $reply = make('App\Reply', [
-            'body' => '@' . $jane->name . ' look at this.',
+            'body' => 'Hey @JaneDoe check this out.'
         ]);
 
-        $this->json('post', $reply->thread->path() . '/replies', $reply->toArray());
+        $this->json('post', $thread->path() . '/replies', $reply->toArray());
 
+        // Then @JaneDoe should receive a notification.
         $this->assertCount(1, $jane->notifications);
+
+        $this->assertEquals(
+            "JohnDoe mentioned you in \"{$thread->title}\"",
+            $jane->notifications->first()->data['message']
+        );
     }
 
     /** @test */
     public function it_can_fetch_all_mentioned_users_starting_with_the_given_characters()
     {
-        $john = create('App\User', ['name' => 'JohnDoe']);
-        $john2 = create('App\User', ['name' => 'JohnDoe2']);
-        $jane = create('App\User', ['name' => 'JaneDoe']);
+        create('App\User', ['username' => 'johndoe']);
+        create('App\User', ['username' => 'johndoe2']);
+        create('App\User', ['username' => 'janedoe']);
 
-        $users = $this->json('get', '/api/users', ['name' => 'john'])->json();
+        $results = $this->json('GET', '/api/users', ['username' => 'john']);
 
-        $this->assertCount(2, $users);
-        $this->assertTrue(in_array($john->name, array_pluck($users, 'name')));
-        $this->assertTrue(in_array($john2->name, array_pluck($users, 'name')));
+        $this->assertCount(2, $results->json());
     }
 }
