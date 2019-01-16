@@ -4,7 +4,7 @@ return [
     'administrators' => [
         // Add the email addresses of users who should be administrators here.
     ],
-    
+
     'reputation' => [
         'thread_published' => 10,
         'reply_posted' => 2,

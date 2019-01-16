@@ -100,7 +100,7 @@ class Reply extends Model
         $replyPosition = $this->thread->replies()->pluck('id')->search($this->id);
         $page = ((int) ($replyPosition / $perPage)) + 1;
 
-        return $this->thread->path() . "?page={$page}#reply-{$this->id}";
+        return $this->thread->path()."?page={$page}#reply-{$this->id}";
     }
 
     /**
